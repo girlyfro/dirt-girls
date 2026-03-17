@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="100" fill="#C1694F"/>
+  <!-- Seedling icon -->
+  <g transform="translate(256,272)" fill="none" stroke="white" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Stem -->
+    <line x1="0" y1="90" x2="0" y2="-20"/>
+    <!-- Left leaf -->
+    <path d="M0,-20 C-75,-20 -100,-100 -50,-140 C-10,-110 0,-50 0,-20Z" fill="white" stroke="none"/>
+    <!-- Right leaf -->
+    <path d="M0,-50 C50,-50 90,-120 55,-155 C20,-125 0,-80 0,-50Z" fill="white" stroke="none"/>
+    <!-- Left leaf vein -->
+    <path d="M0,-20 C-35,-45 -55,-85 -50,-140" fill="none" stroke="#C1694F" stroke-width="7"/>
+    <!-- Right leaf vein -->
+    <path d="M0,-50 C25,-75 40,-110 55,-155" fill="none" stroke="#C1694F" stroke-width="7"/>
+    <!-- Ground line -->
+    <path d="M-75,90 C-38,75 38,75 75,90" stroke="white" stroke-width="12" fill="none"/>
+  </g>
+</svg>

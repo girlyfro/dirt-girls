@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#C1694F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Dirt Girls</title>
+<link rel="manifest" href="manifest.json">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #FDF6EC;
+  --terracotta: #C1694F;
+  --terracotta-dark: #A3553D;
+  --brown: #3E2723;
+  --brown-light: #6D4C41;
+  --gold: #D4A84B;
+  --sage: #8A9A5B;
+  --sage-light: #E8EDDB;
+  --border: #E0D5C5;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--cream);
+  color: var(--brown);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 16px 16px 8px;
+}
+.header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--brown);
+  letter-spacing: 0.5px;
+}
+.header .subtitle {
+  font-size: 0.75rem;
+  color: var(--brown-light);
+  margin-top: 2px;
+}
+
+/* Home Screen */
+.screen { display: none; }
+.screen.active { display: flex; flex-direction: column; min-height: calc(100vh - 60px); min-height: calc(100dvh - 60px); }
+
+#home-screen {
+  align-items: center;
+  padding: 0 20px 24px;
+}
+
+.camera-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.camera-btn {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--terracotta);
+  border: 4px solid var(--terracotta-dark);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(193, 105, 79, 0.35);
+  transition: transform 0.1s, box-shadow 0.1s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.camera-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(193, 105, 79, 0.3);
+}
+.camera-btn svg { width: 40px; height: 40px; }
+.camera-btn span { font-size: 0.8rem; font-weight: 600; }
+
+.gallery-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: 28px;
+  background: var(--sage-light);
+  border: 2px solid var(--sage);
+  color: var(--brown);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.gallery-btn:active { opacity: 0.8; }
+.gallery-btn svg { width: 20px; height: 20px; }
+
+input[type="file"] { display: none; }
+
+/* Recent observations */
+.recent-section {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 20px;
+}
+.recent-section h2 {
+  font-size: 0.85rem;
+  color: var(--brown-light);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+.recent-list { display: flex; flex-direction: column; gap: 8px; }
+
+.recent-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border-radius: 12px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+.recent-card:active { background: #f9f4eb; }
+.recent-card img {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.recent-card .info { flex: 1; min-width: 0; }
+.recent-card .info .title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recent-card .info .meta {
+  font-size: 0.75rem;
+  color: var(--brown-light);
+  margin-top: 2px;
+}
+.recent-card .category-badge {
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: var(--sage-light);
+  color: var(--sage);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 24px;
+  color: var(--brown-light);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* Unsorted queue */
+.unsorted-section {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 16px;
+}
+.unsorted-section h2 {
+  font-size: 0.85rem;
+  color: var(--brown-light);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.unsorted-section h2 .badge {
+  background: var(--terracotta);
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 7px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+.unsorted-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -20px;
+  padding: 0 20px;
+  scrollbar-width: none;
+}
+.unsorted-scroll::-webkit-scrollbar { display: none; }
+.unsorted-list {
+  display: flex;
+  gap: 10px;
+  padding-bottom: 4px;
+}
+.unsorted-thumb {
+  flex-shrink: 0;
+  width: 80px;
+  cursor: pointer;
+  position: relative;
+}
+.unsorted-thumb img {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  display: block;
+}
+.unsorted-thumb:active img {
+  opacity: 0.8;
+}
+.unsorted-thumb .thumb-time {
+  font-size: 0.65rem;
+  color: var(--brown-light);
+  text-align: center;
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.unsorted-thumb .thumb-delete {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--brown);
+  color: var(--cream);
+  border: 2px solid var(--cream);
+  font-size: 0.7rem;
+  line-height: 18px;
+  text-align: center;
+  cursor: pointer;
+  display: none;
+}
+.unsorted-thumb:active .thumb-delete,
+.unsorted-thumb:hover .thumb-delete {
+  display: block;
+}
+
+/* Annotation Screen */
+#annotate-screen { padding: 0 16px 24px; }
+
+.photo-preview {
+  width: 100%;
+  max-height: 220px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: #eee;
+}
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--brown-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+/* Plant chips (horizontal scroll) */
+.plant-chips-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -16px;
+  padding: 0 16px;
+  scrollbar-width: none;
+}
+.plant-chips-wrap::-webkit-scrollbar { display: none; }
+.plant-chips {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 4px;
+}
+.plant-chip {
+  flex-shrink: 0;
+  padding: 10px 16px;
+  border-radius: 20px;
+  border: 2px solid var(--border);
+  background: white;
+  font-size: 0.85rem;
+  color: var(--brown);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s;
+}
+.plant-chip:active { opacity: 0.8; }
+.plant-chip.selected {
+  border-color: var(--sage);
+  background: var(--sage-light);
+  color: var(--brown);
+  font-weight: 600;
+}
+.plant-chip.add-plant {
+  border-style: dashed;
+  border-color: var(--sage);
+  color: var(--sage);
+  font-weight: 600;
+}
+.plant-chip .sci-name {
+  font-size: 0.7rem;
+  font-style: italic;
+  color: var(--brown-light);
+  display: block;
+  margin-top: 1px;
+}
+
+/* Category chips */
+.category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.category-chip {
+  padding: 10px 16px;
+  border-radius: 20px;
+  border: 2px solid var(--border);
+  background: white;
+  font-size: 0.85rem;
+  color: var(--brown);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.category-chip:active { opacity: 0.8; }
+.category-chip.selected {
+  border-color: var(--terracotta);
+  background: #FDF0EB;
+  color: var(--terracotta-dark);
+  font-weight: 600;
+}
+.category-chip .chip-icon { font-size: 1.1rem; }
+
+/* Note field */
+textarea.note-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-size: 1rem;
+  color: var(--brown);
+  background: white;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 60px;
+}
+textarea.note-input:focus {
+  outline: none;
+  border-color: var(--terracotta);
+}
+
+/* Connection field (collapsible) */
+.connection-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.connection-toggle .toggle-arrow {
+  font-size: 0.75rem;
+  transition: transform 0.2s;
+  color: var(--brown-light);
+}
+.connection-toggle.open .toggle-arrow {
+  transform: rotate(90deg);
+}
+.connection-toggle span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--brown-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.connection-fields {
+  display: none;
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 4px;
+}
+.connection-fields.open { display: block; }
+.connection-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.connection-row span {
+  font-size: 0.85rem;
+  color: var(--brown-light);
+  flex-shrink: 0;
+}
+.connection-input {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 12px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: var(--brown);
+  background: var(--cream);
+  font-family: inherit;
+}
+.connection-input:focus {
+  outline: none;
+  border-color: var(--terracotta);
+}
+.connection-rel-chips {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.connection-rel-chip {
+  padding: 7px 12px;
+  border-radius: 16px;
+  border: 2px solid var(--border);
+  background: var(--cream);
+  font-size: 0.8rem;
+  color: var(--brown);
+  cursor: pointer;
+}
+.connection-rel-chip.selected {
+  border-color: var(--terracotta);
+  background: #FDF0EB;
+  color: var(--terracotta-dark);
+  font-weight: 600;
+}
+.detail-connection {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: var(--brown);
+  margin-top: 2px;
+}
+.detail-connection .conn-arrow {
+  color: var(--terracotta);
+  font-weight: 600;
+  margin: 0 4px;
+}
+
+/* Observer toggle */
+.observer-toggle {
+  display: flex;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  background: white;
+}
+.observer-btn {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  background: white;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--brown-light);
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s, color 0.15s;
+}
+.observer-btn:first-child { border-right: 2px solid var(--border); }
+.observer-btn.selected {
+  background: var(--terracotta);
+  color: white;
+  font-weight: 600;
+}
+
+/* Action buttons */
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  padding-bottom: 16px;
+}
+.btn-save {
+  flex: 1;
+  padding: 16px;
+  border-radius: 14px;
+  border: none;
+  background: var(--terracotta);
+  color: white;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(193, 105, 79, 0.3);
+}
+.btn-save:active { background: var(--terracotta-dark); }
+.btn-cancel {
+  padding: 16px 20px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: white;
+  color: var(--brown-light);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-cancel:active { background: #f5f0e8; }
+
+/* Detail screen */
+#detail-screen { padding: 0 16px 24px; }
+
+.detail-photo {
+  width: 100%;
+  max-height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.detail-photo img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  display: block;
+}
+.detail-fields { display: flex; flex-direction: column; gap: 12px; }
+.detail-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--brown-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.detail-field .value {
+  font-size: 1rem;
+  margin-top: 2px;
+}
+.detail-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+}
+.btn-back {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: white;
+  color: var(--brown);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-delete {
+  padding: 14px 20px;
+  border-radius: 14px;
+  border: 2px solid #e57373;
+  background: white;
+  color: #c62828;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-delete:active { background: #ffebee; }
+.btn-share {
+  padding: 14px 20px;
+  border-radius: 14px;
+  border: 2px solid var(--sage);
+  background: var(--sage-light);
+  color: var(--brown);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-share:active { opacity: 0.8; }
+.btn-share svg { width: 18px; height: 18px; }
+
+/* Export bar on home screen */
+.export-bar {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+}
+.btn-export {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid var(--gold);
+  background: #FDF6EC;
+  color: var(--brown);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-export:active { background: #f5edda; }
+.btn-export svg { width: 18px; height: 18px; flex-shrink: 0; }
+.btn-export .badge {
+  background: var(--terracotta);
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 7px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(62, 39, 35, 0.5);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open {
+  display: flex;
+}
+.modal-card {
+  background: var(--cream);
+  border-radius: 20px 20px 0 0;
+  padding: 24px 20px 32px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.modal-card h2 {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+  color: var(--brown);
+}
+.modal-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-size: 1rem;
+  color: var(--brown);
+  background: white;
+  font-family: inherit;
+  margin-bottom: 12px;
+}
+.modal-input:focus {
+  outline: none;
+  border-color: var(--terracotta);
+}
+.modal-input-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--brown-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  display: block;
+}
+/* Location chips in modal */
+.location-chips {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.location-chip {
+  flex: 1;
+  padding: 12px 8px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: white;
+  font-size: 0.85rem;
+  color: var(--brown);
+  cursor: pointer;
+  text-align: center;
+}
+.location-chip:active { opacity: 0.8; }
+.location-chip.selected {
+  border-color: var(--sage);
+  background: var(--sage-light);
+  font-weight: 600;
+}
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+.modal-actions .btn-save { flex: 1; }
+.modal-actions .btn-cancel { flex: 0; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--brown);
+  color: var(--cream);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  z-index: 300;
+  transition: transform 0.3s ease;
+  pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Install banner */
+.install-banner {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 2px solid var(--border);
+  padding: 16px 20px;
+  z-index: 150;
+  box-shadow: 0 -4px 20px rgba(62, 39, 35, 0.1);
+}
+.install-banner.show { display: flex; align-items: center; gap: 12px; }
+.install-banner .install-text {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--brown);
+  line-height: 1.4;
+}
+.install-banner .install-text strong { display: block; font-size: 0.95rem; }
+.install-banner .btn-install {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background: var(--terracotta);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.install-banner .btn-install:active { background: var(--terracotta-dark); }
+.install-banner .btn-dismiss {
+  padding: 8px;
+  border: none;
+  background: none;
+  color: var(--brown-light);
+  font-size: 1.2rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Dirt Girls</h1>
+  <div class="subtitle">Field Journal</div>
+</div>
+
+<!-- HOME SCREEN -->
+<div id="home-screen" class="screen active">
+  <div class="camera-area">
+    <button class="camera-btn" id="cameraBtn" aria-label="Take photo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <span>Photo</span>
+    </button>
+    <button class="gallery-btn" id="galleryBtn" aria-label="Add from gallery">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span>Add from gallery</span>
+    </button>
+  </div>
+  <input type="file" id="cameraInput" accept="image/*" capture="environment">
+  <input type="file" id="galleryInput" accept="image/*">
+
+  <div class="export-bar" id="exportBar" style="display:none">
+    <button class="btn-export" id="exportAllBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      Export New <span class="badge" id="exportCount">0</span>
+    </button>
+  </div>
+
+  <div class="unsorted-section" id="unsortedSection" style="display:none">
+    <h2>Unsorted <span class="badge" id="unsortedCount">0</span></h2>
+    <div class="unsorted-scroll">
+      <div class="unsorted-list" id="unsortedList"></div>
+    </div>
+  </div>
+
+  <div class="recent-section" id="recentSection">
+    <h2>Recent</h2>
+    <div class="recent-list" id="recentList">
+      <div class="empty-state">No observations yet.<br>Take a photo to get started!</div>
+    </div>
+  </div>
+</div>
+
+<!-- ANNOTATION SCREEN -->
+<div id="annotate-screen" class="screen">
+  <div class="photo-preview"><img id="previewImg" src="" alt="Captured photo"></div>
+
+  <div class="form-group">
+    <label>Which plant?</label>
+    <div class="plant-chips-wrap">
+      <div class="plant-chips" id="plantChips"></div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>What is it?</label>
+    <div class="category-chips" id="categoryChips">
+      <button class="category-chip" data-cat="plant health"><span class="chip-icon">🌿</span> Health</button>
+      <button class="category-chip" data-cat="insect"><span class="chip-icon">🐛</span> Insect</button>
+      <button class="category-chip" data-cat="bird"><span class="chip-icon">🐦</span> Bird</button>
+      <button class="category-chip" data-cat="wildlife"><span class="chip-icon">🐾</span> Wildlife</button>
+      <button class="category-chip" data-cat="soil"><span class="chip-icon">🪱</span> Soil</button>
+      <button class="category-chip" data-cat="bloom"><span class="chip-icon">🌸</span> Bloom</button>
+      <button class="category-chip" data-cat="weather"><span class="chip-icon">🌤</span> Weather</button>
+      <button class="category-chip" data-cat="general"><span class="chip-icon">⭐</span> General</button>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="noteInput">Quick note</label>
+    <textarea id="noteInput" class="note-input" placeholder="What did you see?" rows="2"></textarea>
+  </div>
+
+  <div class="form-group">
+    <div class="connection-toggle" id="connectionToggle">
+      <span class="toggle-arrow">&#9654;</span>
+      <span>Connection (optional)</span>
+    </div>
+    <div class="connection-fields" id="connectionFields">
+      <div class="connection-row">
+        <span>I saw</span>
+        <input type="text" id="connSubject" class="connection-input" placeholder="e.g. Carpenter bee" autocomplete="off">
+      </div>
+      <div class="connection-rel-chips" id="connRelChips">
+        <button class="connection-rel-chip" data-rel="visiting">visiting</button>
+        <button class="connection-rel-chip" data-rel="on">on</button>
+        <button class="connection-rel-chip" data-rel="near">near</button>
+        <button class="connection-rel-chip" data-rel="under">under</button>
+        <button class="connection-rel-chip" data-rel="eating">eating</button>
+        <button class="connection-rel-chip" data-rel="nesting in">nesting in</button>
+      </div>
+      <div class="connection-row" style="margin-top:10px">
+        <span>on/near</span>
+        <input type="text" id="connTarget" class="connection-input" placeholder="auto-fills from plant" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Observer</label>
+    <div class="observer-toggle">
+      <button class="observer-btn selected" data-observer="Courtney">Courtney</button>
+      <button class="observer-btn" data-observer="Toni">Toni</button>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn-cancel" id="cancelBtn">Cancel</button>
+    <button class="btn-save" id="saveBtn">Save</button>
+  </div>
+</div>
+
+<!-- DETAIL SCREEN -->
+<div id="detail-screen" class="screen">
+  <div class="detail-photo"><img id="detailImg" src="" alt="Observation photo"></div>
+  <div class="detail-fields">
+    <div class="detail-field"><label>Plant</label><div class="value" id="detailPlant"></div></div>
+    <div class="detail-field"><label>Category</label><div class="value" id="detailCategory"></div></div>
+    <div class="detail-field"><label>Note</label><div class="value" id="detailNote"></div></div>
+    <div class="detail-field" id="detailConnectionField" style="display:none"><label>Connection</label><div class="detail-connection" id="detailConnection"></div></div>
+    <div class="detail-field"><label>Observer</label><div class="value" id="detailObserver"></div></div>
+    <div class="detail-field"><label>Date</label><div class="value" id="detailDate"></div></div>
+  </div>
+  <div class="detail-actions">
+    <button class="btn-back" id="backBtn">Back</button>
+    <button class="btn-share" id="shareBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      Share
+    </button>
+    <button class="btn-delete" id="deleteBtn">Delete</button>
+  </div>
+</div>
+
+<!-- ADD PLANT MODAL -->
+<div class="modal-overlay" id="addPlantModal">
+  <div class="modal-card">
+    <h2>Add New Plant</h2>
+    <label class="modal-input-label" for="newPlantName">Common name *</label>
+    <input type="text" id="newPlantName" class="modal-input" placeholder="e.g. Turk's Cap" autocomplete="off">
+    <label class="modal-input-label" for="newPlantSci">Scientific name (optional)</label>
+    <input type="text" id="newPlantSci" class="modal-input" placeholder="e.g. Malvaviscus arboreus" autocomplete="off">
+    <label class="modal-input-label">Location in yard</label>
+    <div class="location-chips" id="locationChips">
+      <button class="location-chip" data-loc="front">Front</button>
+      <button class="location-chip" data-loc="back">Back</button>
+      <button class="location-chip" data-loc="side">Side</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="addPlantCancelBtn">Cancel</button>
+      <button class="btn-save" id="addPlantSaveBtn">Add Plant</button>
+    </div>
+  </div>
+</div>
+
+<div class="install-banner" id="installBanner">
+  <div class="install-text">
+    <strong>Install Dirt Girls</strong>
+    Add to your home screen for quick access
+  </div>
+  <button class="btn-install" id="installBtn">Install</button>
+  <button class="btn-dismiss" id="installDismiss">&times;</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── IndexedDB Setup ──
+const DB_NAME = 'DirtGirlsDB';
+const DB_VERSION = 3;
+let db;
+
+const DEFAULT_PLANTS = [
+  { id: 'mother-tree',  name: 'Mother Tree',  sci: 'Cercis canadensis', location: 'front', group: 'tree' },
+  { id: 'sister-1',     name: 'Sister 1',     sci: 'Cercis canadensis (volunteer)', location: 'front', group: 'tree' },
+  { id: 'sister-2',     name: 'Sister 2',     sci: 'Cercis canadensis (volunteer)', location: 'front', group: 'tree' },
+  { id: 'turks-cap',    name: "Turk's Cap",   sci: 'Malvaviscus arboreus', location: 'back', group: 'companion' },
+  { id: 'sea-oats',     name: 'Sea Oats',     sci: 'Chasmanthium latifolium', location: 'back', group: 'companion' },
+  { id: 'pentas',       name: 'Pentas',       sci: 'Pentas lanceolata', location: 'back', group: 'companion' },
+  { id: 'easter-lily',  name: 'Easter Lily',  sci: 'Lilium longiflorum', location: 'back', group: 'companion' },
+  { id: 'spider-lily',  name: 'Spider Lily',  sci: 'Hymenocallis', location: 'back', group: 'companion' },
+];
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('observations')) {
+        const store = d.createObjectStore('observations', { keyPath: 'id' });
+        store.createIndex('date', 'date', { unique: false });
+      }
+      if (!d.objectStoreNames.contains('plants')) {
+        const plantStore = d.createObjectStore('plants', { keyPath: 'id' });
+        // Seed default plants
+        DEFAULT_PLANTS.forEach(p => plantStore.add(p));
+      }
+      if (!d.objectStoreNames.contains('unsorted')) {
+        d.createObjectStore('unsorted', { keyPath: 'id' });
+      }
+    };
+    req.onsuccess = (e) => { db = e.target.result; resolve(db); };
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
+
+// ── Observation CRUD ──
+function addObservation(obs) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('observations', 'readwrite');
+    tx.objectStore('observations').add(obs);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
+function getAllObservations() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('observations', 'readonly');
+    const req = tx.objectStore('observations').getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
+
+function deleteObservation(id) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('observations', 'readwrite');
+    tx.objectStore('observations').delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
+// ── Plant CRUD ──
+function getAllPlants() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('plants', 'readonly');
+    const req = tx.objectStore('plants').getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
+
+function addPlant(plant) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('plants', 'readwrite');
+    tx.objectStore('plants').add(plant);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
+function deletePlant(id) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('plants', 'readwrite');
+    tx.objectStore('plants').delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
+// ── Unsorted CRUD ──
+function addUnsorted(item) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('unsorted', 'readwrite');
+    tx.objectStore('unsorted').add(item);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
+function getAllUnsorted() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('unsorted', 'readonly');
+    const req = tx.objectStore('unsorted').getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
+
+function deleteUnsorted(id) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('unsorted', 'readwrite');
+    tx.objectStore('unsorted').delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
+// ── State ──
+let currentPhotoBlob = null;
+let currentPhotoDataURL = null;
+let currentUnsortedId = null;
+let selectedPlant = '';
+let selectedCategory = '';
+let selectedObserver = 'Courtney';
+let selectedLocation = '';
+let viewingObservationId = null;
+
+// ── DOM Refs ──
+const homeScreen = document.getElementById('home-screen');
+const annotateScreen = document.getElementById('annotate-screen');
+const detailScreen = document.getElementById('detail-screen');
+const cameraBtn = document.getElementById('cameraBtn');
+const galleryBtn = document.getElementById('galleryBtn');
+const cameraInput = document.getElementById('cameraInput');
+const galleryInput = document.getElementById('galleryInput');
+const previewImg = document.getElementById('previewImg');
+const plantChips = document.getElementById('plantChips');
+const noteInput = document.getElementById('noteInput');
+const saveBtn = document.getElementById('saveBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const recentList = document.getElementById('recentList');
+const toast = document.getElementById('toast');
+const addPlantModal = document.getElementById('addPlantModal');
+
+// ── Navigation ──
+function showScreen(screen) {
+  [homeScreen, annotateScreen, detailScreen].forEach(s => s.classList.remove('active'));
+  screen.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── Camera / Gallery ──
+cameraBtn.addEventListener('click', () => cameraInput.click());
+galleryBtn.addEventListener('click', () => galleryInput.click());
+
+function handlePhoto(file) {
+  if (!file) return;
+  currentPhotoBlob = file;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    currentPhotoDataURL = e.target.result;
+    // Save to unsorted queue immediately
+    const unsortedItem = {
+      id: crypto.randomUUID(),
+      photo: currentPhotoDataURL,
+      timestamp: new Date().toISOString()
+    };
+    try {
+      await addUnsorted(unsortedItem);
+      currentUnsortedId = unsortedItem.id;
+    } catch (err) {
+      console.error('Failed to save to unsorted:', err);
+      currentUnsortedId = null;
+    }
+    previewImg.src = currentPhotoDataURL;
+    resetForm();
+    showScreen(annotateScreen);
+    renderPlantChips();
+  };
+  reader.readAsDataURL(file);
+}
+
+function openUnsortedItem(item) {
+  currentPhotoDataURL = item.photo;
+  currentUnsortedId = item.id;
+  previewImg.src = item.photo;
+  resetForm();
+  showScreen(annotateScreen);
+  renderPlantChips();
+}
+
+cameraInput.addEventListener('change', (e) => handlePhoto(e.target.files[0]));
+galleryInput.addEventListener('change', (e) => handlePhoto(e.target.files[0]));
+
+// ── Plant Chips ──
+async function renderPlantChips() {
+  const plants = await getAllPlants();
+  // Sort: trees first, then companions, then user-added
+  const order = { tree: 0, companion: 1 };
+  plants.sort((a, b) => (order[a.group] ?? 2) - (order[b.group] ?? 2));
+
+  plantChips.innerHTML = plants.map(p => {
+    const sel = selectedPlant === p.name ? ' selected' : '';
+    const sci = p.sci ? `<span class="sci-name">${esc(p.sci)}</span>` : '';
+    return `<button class="plant-chip${sel}" data-name="${esc(p.name)}">${esc(p.name)}${sci}</button>`;
+  }).join('') + '<button class="plant-chip add-plant" id="addPlantChip">+ Add New</button>';
+
+  // Bind selection
+  plantChips.querySelectorAll('.plant-chip:not(.add-plant)').forEach(chip => {
+    chip.addEventListener('click', () => {
+      plantChips.querySelectorAll('.plant-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      selectedPlant = chip.dataset.name;
+    });
+  });
+
+  // Bind add-plant
+  document.getElementById('addPlantChip').addEventListener('click', openAddPlantModal);
+}
+
+// ── Add Plant Modal ──
+function openAddPlantModal() {
+  document.getElementById('newPlantName').value = '';
+  document.getElementById('newPlantSci').value = '';
+  selectedLocation = '';
+  document.querySelectorAll('.location-chip').forEach(c => c.classList.remove('selected'));
+  addPlantModal.classList.add('open');
+  setTimeout(() => document.getElementById('newPlantName').focus(), 100);
+}
+
+function closeAddPlantModal() {
+  addPlantModal.classList.remove('open');
+}
+
+// Location chip selection
+document.querySelectorAll('.location-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.location-chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    selectedLocation = chip.dataset.loc;
+  });
+});
+
+document.getElementById('addPlantCancelBtn').addEventListener('click', closeAddPlantModal);
+
+document.getElementById('addPlantSaveBtn').addEventListener('click', async () => {
+  const name = document.getElementById('newPlantName').value.trim();
+  if (!name) {
+    showToast('Plant name is required');
+    return;
+  }
+  const sci = document.getElementById('newPlantSci').value.trim();
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now();
+  const plant = {
+    id,
+    name,
+    sci: sci || '',
+    location: selectedLocation || '',
+    group: 'custom'
+  };
+  try {
+    await addPlant(plant);
+    closeAddPlantModal();
+    selectedPlant = name;
+    await renderPlantChips();
+    showToast(`${name} added!`);
+    // Scroll the chips to show the newly selected one
+    const sel = plantChips.querySelector('.plant-chip.selected');
+    if (sel) sel.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+  } catch (err) {
+    showToast('Error adding plant');
+    console.error(err);
+  }
+});
+
+// Close modal on overlay tap
+addPlantModal.addEventListener('click', (e) => {
+  if (e.target === addPlantModal) closeAddPlantModal();
+});
+
+// ── Connection Field ──
+let selectedRelationship = '';
+const connectionToggle = document.getElementById('connectionToggle');
+const connectionFields = document.getElementById('connectionFields');
+const connSubject = document.getElementById('connSubject');
+const connTarget = document.getElementById('connTarget');
+
+connectionToggle.addEventListener('click', () => {
+  connectionToggle.classList.toggle('open');
+  connectionFields.classList.toggle('open');
+  // Auto-fill target with selected plant
+  if (connectionFields.classList.contains('open') && selectedPlant && !connTarget.value) {
+    connTarget.value = selectedPlant;
+  }
+});
+
+document.querySelectorAll('.connection-rel-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.connection-rel-chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    selectedRelationship = chip.dataset.rel;
+  });
+});
+
+function getConnection() {
+  const subject = connSubject.value.trim();
+  const target = connTarget.value.trim();
+  if (!subject && !target) return null;
+  return {
+    subject: subject || '',
+    relationship: selectedRelationship || 'on',
+    target: target || selectedPlant || ''
+  };
+}
+
+function resetConnection() {
+  connSubject.value = '';
+  connTarget.value = '';
+  selectedRelationship = '';
+  document.querySelectorAll('.connection-rel-chip').forEach(c => c.classList.remove('selected'));
+  connectionToggle.classList.remove('open');
+  connectionFields.classList.remove('open');
+}
+
+// ── Category Chips ──
+document.querySelectorAll('.category-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    selectedCategory = chip.dataset.cat;
+  });
+});
+
+// ── Observer Toggle ──
+document.querySelectorAll('.observer-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.observer-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedObserver = btn.dataset.observer;
+  });
+});
+
+// ── Form ──
+function resetForm() {
+  selectedPlant = '';
+  noteInput.value = '';
+  selectedCategory = '';
+  document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('selected'));
+  resetConnection();
+}
+
+cancelBtn.addEventListener('click', () => {
+  currentPhotoBlob = null;
+  currentPhotoDataURL = null;
+  currentUnsortedId = null;
+  cameraInput.value = '';
+  galleryInput.value = '';
+  showScreen(homeScreen);
+  renderUnsorted();
+});
+
+saveBtn.addEventListener('click', async () => {
+  const now = new Date();
+  const observation = {
+    id: crypto.randomUUID(),
+    date: now.toISOString().slice(0, 10),
+    time: now.toTimeString().slice(0, 5),
+    observer: selectedObserver,
+    plant: selectedPlant || 'Unknown',
+    category: selectedCategory || 'general',
+    note: noteInput.value.trim(),
+    connection: getConnection(),
+    photo: currentPhotoDataURL,
+    photoTimestamp: now.toISOString()
+  };
+
+  try {
+    await addObservation(observation);
+    // Remove from unsorted queue if it came from there
+    if (currentUnsortedId) {
+      await deleteUnsorted(currentUnsortedId).catch(() => {});
+      currentUnsortedId = null;
+    }
+    showToast('Observation saved!');
+    currentPhotoBlob = null;
+    currentPhotoDataURL = null;
+    cameraInput.value = '';
+    galleryInput.value = '';
+    showScreen(homeScreen);
+    renderRecent();
+    renderUnsorted();
+    updateExportBar();
+  } catch (err) {
+    showToast('Error saving — try again');
+    console.error(err);
+  }
+});
+
+// ── Recent List ──
+async function renderRecent() {
+  const observations = await getAllObservations();
+  observations.sort((a, b) => b.photoTimestamp.localeCompare(a.photoTimestamp));
+  const recent = observations.slice(0, 10);
+
+  if (recent.length === 0) {
+    recentList.innerHTML = '<div class="empty-state">No observations yet.<br>Take a photo to get started!</div>';
+    return;
+  }
+
+  recentList.innerHTML = recent.map(obs => `
+    <div class="recent-card" data-id="${obs.id}">
+      <img src="${obs.photo}" alt="Photo" loading="lazy">
+      <div class="info">
+        <div class="title">${esc(obs.plant)}</div>
+        <div class="meta">${obs.date} · ${obs.observer}</div>
+      </div>
+      <div class="category-badge">${esc(obs.category)}</div>
+    </div>
+  `).join('');
+
+  recentList.querySelectorAll('.recent-card').forEach(card => {
+    card.addEventListener('click', () => showDetail(card.dataset.id, observations));
+  });
+}
+
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ── Unsorted Queue ──
+async function renderUnsorted() {
+  const items = await getAllUnsorted();
+  const section = document.getElementById('unsortedSection');
+  const list = document.getElementById('unsortedList');
+  const badge = document.getElementById('unsortedCount');
+
+  if (items.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  badge.textContent = items.length;
+  items.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+
+  list.innerHTML = items.map(item => {
+    const d = new Date(item.timestamp);
+    const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    const date = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return `<div class="unsorted-thumb" data-id="${item.id}">
+      <img src="${item.photo}" alt="Unsorted photo" loading="lazy">
+      <div class="thumb-time">${date} ${time}</div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.unsorted-thumb').forEach(thumb => {
+    const id = thumb.dataset.id;
+    // Tap thumbnail to annotate
+    thumb.querySelector('img').addEventListener('click', () => {
+      const item = items.find(i => i.id === id);
+      if (item) openUnsortedItem(item);
+    });
+  });
+}
+
+// ── Detail View ──
+function showDetail(id, observations) {
+  const obs = observations.find(o => o.id === id);
+  if (!obs) return;
+  viewingObservationId = id;
+  document.getElementById('detailImg').src = obs.photo;
+  document.getElementById('detailPlant').textContent = obs.plant;
+  document.getElementById('detailCategory').textContent = obs.category;
+  document.getElementById('detailNote').textContent = obs.note || '—';
+  document.getElementById('detailObserver').textContent = obs.observer;
+  document.getElementById('detailDate').textContent = `${obs.date} at ${obs.time}`;
+  // Connection
+  const connField = document.getElementById('detailConnectionField');
+  const connDiv = document.getElementById('detailConnection');
+  if (obs.connection && obs.connection.subject) {
+    connField.style.display = '';
+    connDiv.innerHTML = `${esc(obs.connection.subject)} <span class="conn-arrow">\u2192 ${esc(obs.connection.relationship)} \u2192</span> ${esc(obs.connection.target)}`;
+  } else {
+    connField.style.display = 'none';
+  }
+  showScreen(detailScreen);
+}
+
+document.getElementById('backBtn').addEventListener('click', () => {
+  showScreen(homeScreen);
+});
+
+document.getElementById('deleteBtn').addEventListener('click', async () => {
+  if (!viewingObservationId) return;
+  if (!confirm('Delete this observation?')) return;
+  await deleteObservation(viewingObservationId);
+  viewingObservationId = null;
+  showToast('Deleted');
+  showScreen(homeScreen);
+  renderRecent();
+});
+
+// ── Share / Export ──
+function formatObsDate(obs) {
+  const d = new Date(obs.photoTimestamp);
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    + ' ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function obsToMarkdown(obs) {
+  const categoryMap = {
+    'plant health': 'Plant health', 'insect': 'Insect visitor', 'bird': 'Bird visitor',
+    'wildlife': 'Wildlife', 'soil': 'Soil', 'bloom': 'Bloom', 'weather': 'Weather', 'general': 'General'
+  };
+  let md = `# Field Observation — ${formatObsDate(obs)}\n`;
+  md += `**Observer:** ${obs.observer}\n`;
+  md += `**Plant:** ${obs.plant}\n`;
+  md += `**Category:** ${categoryMap[obs.category] || obs.category}\n\n`;
+  if (obs.note) md += `${obs.note}\n\n`;
+  if (obs.connection && obs.connection.subject) {
+    md += `**Connection:** ${obs.connection.subject} \u2192 ${obs.connection.relationship} \u2192 ${obs.connection.target}\n\n`;
+  }
+  md += `**Photo:** ${obs.date}_${obs.time.replace(':', '')}\_${obs.plant.replace(/[^a-zA-Z0-9]/g, '')}.jpg\n`;
+  return md;
+}
+
+function obsFilename(obs) {
+  const plant = obs.plant.replace(/[^a-zA-Z0-9]+/g, '_').replace(/(^_|_$)/g, '');
+  return `${obs.date}_${obs.time.replace(':', '')}_${plant}.md`;
+}
+
+async function dataURLtoBlob(dataURL) {
+  const res = await fetch(dataURL);
+  return res.blob();
+}
+
+async function shareObservation(obs) {
+  const md = obsToMarkdown(obs);
+  const mdFile = new File([md], obsFilename(obs), { type: 'text/markdown' });
+  const files = [mdFile];
+
+  // Also include the photo as a sharable file
+  if (obs.photo) {
+    try {
+      const photoBlob = await dataURLtoBlob(obs.photo);
+      const plant = obs.plant.replace(/[^a-zA-Z0-9]+/g, '_').replace(/(^_|_$)/g, '');
+      const photoFile = new File([photoBlob], `${obs.date}_${obs.time.replace(':', '')}_${plant}.jpg`, { type: 'image/jpeg' });
+      files.push(photoFile);
+    } catch (e) { /* photo share failed, still share the md */ }
+  }
+
+  if (navigator.canShare && navigator.canShare({ files })) {
+    try {
+      await navigator.share({ files, title: `Dirt Girls — ${obs.plant}`, text: `Field observation: ${obs.plant}` });
+      markExported([obs.id]);
+      showToast('Shared!');
+    } catch (err) {
+      if (err.name !== 'AbortError') showToast('Share cancelled');
+    }
+  } else {
+    // Fallback: download the markdown file
+    const url = URL.createObjectURL(mdFile);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = obsFilename(obs);
+    a.click();
+    URL.revokeObjectURL(url);
+    markExported([obs.id]);
+    showToast('File downloaded');
+  }
+}
+
+async function exportNewObservations() {
+  const observations = await getAllObservations();
+  const exported = getExportedIds();
+  const newObs = observations.filter(o => !exported.has(o.id));
+
+  if (newObs.length === 0) {
+    showToast('Nothing new to export');
+    return;
+  }
+
+  // Build files array: one md + one photo per observation
+  const files = [];
+  for (const obs of newObs) {
+    const md = obsToMarkdown(obs);
+    files.push(new File([md], obsFilename(obs), { type: 'text/markdown' }));
+    if (obs.photo) {
+      try {
+        const blob = await dataURLtoBlob(obs.photo);
+        const plant = obs.plant.replace(/[^a-zA-Z0-9]+/g, '_').replace(/(^_|_$)/g, '');
+        files.push(new File([blob], `${obs.date}_${obs.time.replace(':', '')}_${plant}.jpg`, { type: 'image/jpeg' }));
+      } catch (e) { /* skip photo */ }
+    }
+  }
+
+  if (navigator.canShare && navigator.canShare({ files })) {
+    try {
+      await navigator.share({ files, title: `Dirt Girls — ${newObs.length} observations` });
+      markExported(newObs.map(o => o.id));
+      updateExportBar();
+      showToast(`${newObs.length} observations exported!`);
+    } catch (err) {
+      if (err.name !== 'AbortError') showToast('Export cancelled');
+    }
+  } else {
+    // Fallback: share one at a time won't work well, download a combined file
+    let combined = '';
+    for (const obs of newObs) {
+      combined += obsToMarkdown(obs) + '\n---\n\n';
+    }
+    const file = new File([combined], `dirt-girls-export-${new Date().toISOString().slice(0, 10)}.md`, { type: 'text/markdown' });
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name;
+    a.click();
+    URL.revokeObjectURL(url);
+    markExported(newObs.map(o => o.id));
+    updateExportBar();
+    showToast(`${newObs.length} observations downloaded`);
+  }
+}
+
+// Track which observations have been exported
+function getExportedIds() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem('dg_exported') || '[]'));
+  } catch { return new Set(); }
+}
+
+function markExported(ids) {
+  const exported = getExportedIds();
+  ids.forEach(id => exported.add(id));
+  localStorage.setItem('dg_exported', JSON.stringify([...exported]));
+}
+
+async function updateExportBar() {
+  const observations = await getAllObservations();
+  const exported = getExportedIds();
+  const newCount = observations.filter(o => !exported.has(o.id)).length;
+  const bar = document.getElementById('exportBar');
+  const badge = document.getElementById('exportCount');
+  if (newCount > 0) {
+    bar.style.display = 'flex';
+    badge.textContent = newCount;
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+document.getElementById('shareBtn').addEventListener('click', async () => {
+  const observations = await getAllObservations();
+  const obs = observations.find(o => o.id === viewingObservationId);
+  if (obs) await shareObservation(obs);
+});
+
+document.getElementById('exportAllBtn').addEventListener('click', exportNewObservations);
+
+// ── Toast ──
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// ── Init ──
+(async function init() {
+  await openDB();
+  renderRecent();
+  renderUnsorted();
+  updateExportBar();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+  }
+
+  // ── Install Prompt ──
+  let deferredPrompt = null;
+  const installBanner = document.getElementById('installBanner');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Only show if user hasn't dismissed recently
+    if (!localStorage.getItem('dg_install_dismissed')) {
+      installBanner.classList.add('show');
+    }
+  });
+
+  document.getElementById('installBtn').addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    installBanner.classList.remove('show');
+    deferredPrompt.prompt();
+    const result = await deferredPrompt.userChoice;
+    if (result.outcome === 'accepted') {
+      showToast('Installed!');
+    }
+    deferredPrompt = null;
+  });
+
+  document.getElementById('installDismiss').addEventListener('click', () => {
+    installBanner.classList.remove('show');
+    localStorage.setItem('dg_install_dismissed', Date.now().toString());
+  });
+
+  window.addEventListener('appinstalled', () => {
+    installBanner.classList.remove('show');
+    deferredPrompt = null;
+  });
+})();
+</script>
+</body>
+</html>
