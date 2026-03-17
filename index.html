@@ -318,6 +318,7 @@ input[type="file"] { display: none; }
   cursor: pointer;
   white-space: nowrap;
   transition: border-color 0.15s, background 0.15s;
+  position: relative;
 }
 .plant-chip:active { opacity: 0.8; }
 .plant-chip.selected {
@@ -338,6 +339,23 @@ input[type="file"] { display: none; }
   color: var(--brown-light);
   display: block;
   margin-top: 1px;
+}
+.plant-chip .fav-star {
+  display: inline-block;
+  margin-right: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--border);
+  transition: color 0.15s;
+}
+.plant-chip .fav-star.active { color: var(--gold); }
+.plant-chips-divider {
+  flex-shrink: 0;
+  width: 2px;
+  align-self: stretch;
+  background: var(--border);
+  margin: 4px 2px;
+  border-radius: 1px;
 }
 
 /* Category chips */
@@ -367,6 +385,44 @@ input[type="file"] { display: none; }
   font-weight: 600;
 }
 .category-chip .chip-icon { font-size: 1.1rem; }
+.category-chip.add-category {
+  border-style: dashed;
+  border-color: var(--terracotta);
+  color: var(--terracotta);
+  font-weight: 600;
+}
+.add-cat-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.add-cat-inline input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: var(--brown);
+  background: white;
+  font-family: inherit;
+}
+.add-cat-inline input:focus { outline: none; border-color: var(--terracotta); }
+.add-cat-inline button {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--terracotta);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.add-cat-inline .btn-cat-cancel {
+  background: none;
+  border: 2px solid var(--border);
+  color: var(--brown-light);
+}
 
 /* Note field */
 textarea.note-input {
@@ -611,6 +667,129 @@ textarea.note-input:focus {
 }
 .btn-share:active { opacity: 0.8; }
 .btn-share svg { width: 18px; height: 18px; }
+.btn-edit-obs {
+  padding: 14px 20px;
+  border-radius: 14px;
+  border: 2px solid var(--sage);
+  background: white;
+  color: var(--brown);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-edit-obs:active { background: var(--sage-light); }
+
+/* Notes timeline */
+.note-timeline { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.note-entry {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.note-entry .note-ts {
+  font-size: 0.7rem;
+  color: var(--brown-light);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+}
+.note-entry .note-text { font-size: 0.95rem; line-height: 1.5; }
+.note-entry .note-edit-btn {
+  font-size: 0.75rem;
+  color: var(--terracotta);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-top: 4px;
+  font-weight: 600;
+}
+.note-entry textarea {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid var(--terracotta);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--brown);
+  font-family: inherit;
+  resize: vertical;
+  min-height: 50px;
+  margin-top: 4px;
+}
+.note-entry .note-edit-actions { display: flex; gap: 8px; margin-top: 6px; }
+.note-entry .note-edit-actions button {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+.note-entry .note-edit-actions .btn-note-save { background: var(--terracotta); color: white; }
+.note-entry .note-edit-actions .btn-note-cancel { background: var(--sage-light); color: var(--brown); }
+.btn-add-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 2px dashed var(--sage);
+  background: none;
+  color: var(--sage);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 4px;
+}
+.btn-add-note:active { background: var(--sage-light); }
+.add-note-area { margin-top: 8px; }
+.add-note-area textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--terracotta);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: var(--brown);
+  font-family: inherit;
+  resize: vertical;
+  min-height: 60px;
+}
+.add-note-area .note-edit-actions { display: flex; gap: 8px; margin-top: 8px; }
+.add-note-area .note-edit-actions button {
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+.add-note-area .note-edit-actions .btn-note-save { background: var(--terracotta); color: white; }
+.add-note-area .note-edit-actions .btn-note-cancel { background: var(--sage-light); color: var(--brown); }
+.detail-latin { font-size: 0.8rem; font-style: italic; color: var(--brown-light); margin-top: 2px; }
+.detail-categories { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.detail-cat-badge {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: var(--sage-light);
+  color: var(--sage);
+  font-weight: 600;
+}
+.recent-card .info .plant-latin {
+  font-size: 0.7rem;
+  font-style: italic;
+  color: var(--brown-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* Export bar on home screen */
 .export-bar {
@@ -848,15 +1027,11 @@ textarea.note-input:focus {
 
   <div class="form-group">
     <label>What is it?</label>
-    <div class="category-chips" id="categoryChips">
-      <button class="category-chip" data-cat="plant health"><span class="chip-icon">🌿</span> Health</button>
-      <button class="category-chip" data-cat="insect"><span class="chip-icon">🐛</span> Insect</button>
-      <button class="category-chip" data-cat="bird"><span class="chip-icon">🐦</span> Bird</button>
-      <button class="category-chip" data-cat="wildlife"><span class="chip-icon">🐾</span> Wildlife</button>
-      <button class="category-chip" data-cat="soil"><span class="chip-icon">🪱</span> Soil</button>
-      <button class="category-chip" data-cat="bloom"><span class="chip-icon">🌸</span> Bloom</button>
-      <button class="category-chip" data-cat="weather"><span class="chip-icon">🌤</span> Weather</button>
-      <button class="category-chip" data-cat="general"><span class="chip-icon">⭐</span> General</button>
+    <div class="category-chips" id="categoryChips"></div>
+    <div class="add-cat-inline" id="addCatInline" style="display:none">
+      <input type="text" id="newCatName" placeholder="Category name" autocomplete="off">
+      <button id="addCatSaveBtn">Add</button>
+      <button class="btn-cat-cancel" id="addCatCancelBtn">Cancel</button>
     </div>
   </div>
 
@@ -908,15 +1083,16 @@ textarea.note-input:focus {
 <div id="detail-screen" class="screen">
   <div class="detail-photo"><img id="detailImg" src="" alt="Observation photo"></div>
   <div class="detail-fields">
-    <div class="detail-field"><label>Plant</label><div class="value" id="detailPlant"></div></div>
-    <div class="detail-field"><label>Category</label><div class="value" id="detailCategory"></div></div>
-    <div class="detail-field"><label>Note</label><div class="value" id="detailNote"></div></div>
+    <div class="detail-field"><label>Plant</label><div class="value" id="detailPlant"></div><div class="detail-latin" id="detailPlantLatin"></div></div>
+    <div class="detail-field"><label>Category</label><div class="detail-categories" id="detailCategory"></div></div>
+    <div class="detail-field"><label>Notes</label><div id="detailNote"></div></div>
     <div class="detail-field" id="detailConnectionField" style="display:none"><label>Connection</label><div class="detail-connection" id="detailConnection"></div></div>
     <div class="detail-field"><label>Observer</label><div class="value" id="detailObserver"></div></div>
     <div class="detail-field"><label>Date</label><div class="value" id="detailDate"></div></div>
   </div>
   <div class="detail-actions">
     <button class="btn-back" id="backBtn">Back</button>
+    <button class="btn-edit-obs" id="editObsBtn">+ Note</button>
     <button class="btn-share" id="shareBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
       Share
@@ -930,9 +1106,11 @@ textarea.note-input:focus {
   <div class="modal-card">
     <h2>Add New Plant</h2>
     <label class="modal-input-label" for="newPlantName">Common name *</label>
-    <input type="text" id="newPlantName" class="modal-input" placeholder="e.g. Turk's Cap" autocomplete="off">
-    <label class="modal-input-label" for="newPlantSci">Scientific name (optional)</label>
-    <input type="text" id="newPlantSci" class="modal-input" placeholder="e.g. Malvaviscus arboreus" autocomplete="off">
+    <input type="text" id="newPlantName" class="modal-input" placeholder="e.g. Eastern Redbud" autocomplete="off">
+    <label class="modal-input-label" for="newPlantNickname">Nickname (optional)</label>
+    <input type="text" id="newPlantNickname" class="modal-input" placeholder="e.g. Mother Tree" autocomplete="off">
+    <label class="modal-input-label" for="newPlantSci">Latin name (optional)</label>
+    <input type="text" id="newPlantSci" class="modal-input" placeholder="e.g. Cercis canadensis" autocomplete="off">
     <label class="modal-input-label">Location in yard</label>
     <div class="location-chips" id="locationChips">
       <button class="location-chip" data-loc="front">Front</button>
@@ -960,36 +1138,89 @@ textarea.note-input:focus {
 <script>
 // ── IndexedDB Setup ──
 const DB_NAME = 'DirtGirlsDB';
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 let db;
 
 const DEFAULT_PLANTS = [
-  { id: 'mother-tree',  name: 'Mother Tree',  sci: 'Cercis canadensis', location: 'front', group: 'tree' },
-  { id: 'sister-1',     name: 'Sister 1',     sci: 'Cercis canadensis (volunteer)', location: 'front', group: 'tree' },
-  { id: 'sister-2',     name: 'Sister 2',     sci: 'Cercis canadensis (volunteer)', location: 'front', group: 'tree' },
-  { id: 'turks-cap',    name: "Turk's Cap",   sci: 'Malvaviscus arboreus', location: 'back', group: 'companion' },
-  { id: 'sea-oats',     name: 'Sea Oats',     sci: 'Chasmanthium latifolium', location: 'back', group: 'companion' },
-  { id: 'pentas',       name: 'Pentas',       sci: 'Pentas lanceolata', location: 'back', group: 'companion' },
-  { id: 'easter-lily',  name: 'Easter Lily',  sci: 'Lilium longiflorum', location: 'back', group: 'companion' },
-  { id: 'spider-lily',  name: 'Spider Lily',  sci: 'Hymenocallis', location: 'back', group: 'companion' },
+  { id: 'mother-tree',  name: 'Mother Tree',  sci: 'Cercis canadensis', location: 'front', group: 'tree', nickname: '', favorite: false },
+  { id: 'sister-1',     name: 'Sister 1',     sci: 'Cercis canadensis (volunteer)', location: 'front', group: 'tree', nickname: '', favorite: false },
+  { id: 'sister-2',     name: 'Sister 2',     sci: 'Cercis canadensis (volunteer)', location: 'front', group: 'tree', nickname: '', favorite: false },
+  { id: 'turks-cap',    name: "Turk's Cap",   sci: 'Malvaviscus arboreus', location: 'back', group: 'companion', nickname: '', favorite: false },
+  { id: 'sea-oats',     name: 'Sea Oats',     sci: 'Chasmanthium latifolium', location: 'back', group: 'companion', nickname: '', favorite: false },
+  { id: 'pentas',       name: 'Pentas',       sci: 'Pentas lanceolata', location: 'back', group: 'companion', nickname: '', favorite: false },
+  { id: 'easter-lily',  name: 'Easter Lily',  sci: 'Lilium longiflorum', location: 'back', group: 'companion', nickname: '', favorite: false },
+  { id: 'spider-lily',  name: 'Spider Lily',  sci: 'Hymenocallis', location: 'back', group: 'companion', nickname: '', favorite: false },
 ];
+
+const DEFAULT_CATEGORIES = [
+  { name: 'plant health', icon: '🌿', label: 'Health' },
+  { name: 'insect', icon: '🐛', label: 'Insect' },
+  { name: 'bird', icon: '🐦', label: 'Bird' },
+  { name: 'wildlife', icon: '🐾', label: 'Wildlife' },
+  { name: 'soil', icon: '🪱', label: 'Soil' },
+  { name: 'bloom', icon: '🌸', label: 'Bloom' },
+  { name: 'weather', icon: '🌤', label: 'Weather' },
+  { name: 'general', icon: '⭐', label: 'General' },
+];
+
+// ── Helpers for display ──
+function plantLabel(p) { return p.nickname || p.name; }
+
+// Normalize old observations to new format
+function normalizeObs(obs) {
+  // category: string → array
+  if (typeof obs.category === 'string') {
+    obs.category = obs.category ? [obs.category] : ['general'];
+  }
+  // note: string → notes array
+  if (!obs.notes) {
+    obs.notes = obs.note ? [{ text: obs.note, timestamp: obs.photoTimestamp }] : [];
+    delete obs.note;
+  }
+  return obs;
+}
+
+// Custom categories from localStorage
+function getCustomCategories() {
+  try { return JSON.parse(localStorage.getItem('dg_custom_categories') || '[]'); }
+  catch { return []; }
+}
+function saveCustomCategories(cats) {
+  localStorage.setItem('dg_custom_categories', JSON.stringify(cats));
+}
 
 function openDB() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = (e) => {
       const d = e.target.result;
+      const tx = e.target.transaction;
       if (!d.objectStoreNames.contains('observations')) {
         const store = d.createObjectStore('observations', { keyPath: 'id' });
         store.createIndex('date', 'date', { unique: false });
       }
       if (!d.objectStoreNames.contains('plants')) {
         const plantStore = d.createObjectStore('plants', { keyPath: 'id' });
-        // Seed default plants
         DEFAULT_PLANTS.forEach(p => plantStore.add(p));
       }
       if (!d.objectStoreNames.contains('unsorted')) {
         d.createObjectStore('unsorted', { keyPath: 'id' });
+      }
+      // v4 migration: add nickname/favorite to existing plants
+      if (e.oldVersion < 4 && e.oldVersion >= 1) {
+        const plantStore = tx.objectStore('plants');
+        const cursorReq = plantStore.openCursor();
+        cursorReq.onsuccess = (ev) => {
+          const cursor = ev.target.result;
+          if (cursor) {
+            const p = cursor.value;
+            let changed = false;
+            if (p.nickname === undefined) { p.nickname = ''; changed = true; }
+            if (p.favorite === undefined) { p.favorite = false; changed = true; }
+            if (changed) cursor.update(p);
+            cursor.continue();
+          }
+        };
       }
     };
     req.onsuccess = (e) => { db = e.target.result; resolve(db); };
@@ -1053,6 +1284,24 @@ function deletePlant(id) {
   });
 }
 
+function updatePlant(plant) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('plants', 'readwrite');
+    tx.objectStore('plants').put(plant);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
+function updateObservation(obs) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('observations', 'readwrite');
+    tx.objectStore('observations').put(obs);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
 // ── Unsorted CRUD ──
 function addUnsorted(item) {
   return new Promise((resolve, reject) => {
@@ -1086,10 +1335,12 @@ let currentPhotoBlob = null;
 let currentPhotoDataURL = null;
 let currentUnsortedId = null;
 let selectedPlant = '';
-let selectedCategory = '';
+let selectedPlantObj = null;
+let selectedCategories = new Set();
 let selectedObserver = 'Courtney';
 let selectedLocation = '';
 let viewingObservationId = null;
+let allPlantsCache = [];
 
 // ── DOM Refs ──
 const homeScreen = document.getElementById('home-screen');
@@ -1161,22 +1412,48 @@ galleryInput.addEventListener('change', (e) => handlePhoto(e.target.files[0]));
 // ── Plant Chips ──
 async function renderPlantChips() {
   const plants = await getAllPlants();
-  // Sort: trees first, then companions, then user-added
+  allPlantsCache = plants;
+  // Sort: favorites first, then trees, companions, custom
   const order = { tree: 0, companion: 1 };
-  plants.sort((a, b) => (order[a.group] ?? 2) - (order[b.group] ?? 2));
+  plants.sort((a, b) => {
+    if (a.favorite && !b.favorite) return -1;
+    if (!a.favorite && b.favorite) return 1;
+    return (order[a.group] ?? 2) - (order[b.group] ?? 2);
+  });
 
-  plantChips.innerHTML = plants.map(p => {
-    const sel = selectedPlant === p.name ? ' selected' : '';
-    const sci = p.sci ? `<span class="sci-name">${esc(p.sci)}</span>` : '';
-    return `<button class="plant-chip${sel}" data-name="${esc(p.name)}">${esc(p.name)}${sci}</button>`;
-  }).join('') + '<button class="plant-chip add-plant" id="addPlantChip">+ Add New</button>';
+  const favs = plants.filter(p => p.favorite);
+  const nonFavs = plants.filter(p => !p.favorite);
 
-  // Bind selection
+  let html = '';
+  favs.forEach(p => { html += buildPlantChipHTML(p); });
+  if (favs.length > 0 && nonFavs.length > 0) {
+    html += '<div class="plant-chips-divider"></div>';
+  }
+  nonFavs.forEach(p => { html += buildPlantChipHTML(p); });
+  html += '<button class="plant-chip add-plant" id="addPlantChip">+ Add New</button>';
+  plantChips.innerHTML = html;
+
+  // Bind selection (click on chip body, not star)
   plantChips.querySelectorAll('.plant-chip:not(.add-plant)').forEach(chip => {
-    chip.addEventListener('click', () => {
+    chip.addEventListener('click', (e) => {
+      if (e.target.classList.contains('fav-star')) return;
       plantChips.querySelectorAll('.plant-chip').forEach(c => c.classList.remove('selected'));
       chip.classList.add('selected');
       selectedPlant = chip.dataset.name;
+      selectedPlantObj = plants.find(p => plantLabel(p) === selectedPlant || p.name === selectedPlant) || null;
+    });
+  });
+
+  // Bind star toggles
+  plantChips.querySelectorAll('.fav-star').forEach(star => {
+    star.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const plantId = star.dataset.plantid;
+      const plant = plants.find(p => p.id === plantId);
+      if (!plant) return;
+      plant.favorite = !plant.favorite;
+      await updatePlant(plant);
+      await renderPlantChips();
     });
   });
 
@@ -1184,9 +1461,19 @@ async function renderPlantChips() {
   document.getElementById('addPlantChip').addEventListener('click', openAddPlantModal);
 }
 
+function buildPlantChipHTML(p) {
+  const sel = (selectedPlant === plantLabel(p) || selectedPlant === p.name) ? ' selected' : '';
+  const sci = p.sci ? `<span class="sci-name">${esc(p.sci)}</span>` : '';
+  const starClass = p.favorite ? 'fav-star active' : 'fav-star';
+  const starChar = p.favorite ? '\u2605' : '\u2606';
+  const label = esc(plantLabel(p));
+  return `<button class="plant-chip${sel}" data-name="${esc(plantLabel(p))}"><span class="${starClass}" data-plantid="${esc(p.id)}">${starChar}</span>${label}${sci}</button>`;
+}
+
 // ── Add Plant Modal ──
 function openAddPlantModal() {
   document.getElementById('newPlantName').value = '';
+  document.getElementById('newPlantNickname').value = '';
   document.getElementById('newPlantSci').value = '';
   selectedLocation = '';
   document.querySelectorAll('.location-chip').forEach(c => c.classList.remove('selected'));
@@ -1215,22 +1502,26 @@ document.getElementById('addPlantSaveBtn').addEventListener('click', async () =>
     showToast('Plant name is required');
     return;
   }
+  const nickname = document.getElementById('newPlantNickname').value.trim();
   const sci = document.getElementById('newPlantSci').value.trim();
   const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now();
   const plant = {
     id,
     name,
+    nickname: nickname || '',
     sci: sci || '',
     location: selectedLocation || '',
-    group: 'custom'
+    group: 'custom',
+    favorite: false
   };
   try {
     await addPlant(plant);
     closeAddPlantModal();
-    selectedPlant = name;
+    selectedPlant = plantLabel(plant);
+    selectedPlantObj = plant;
     await renderPlantChips();
-    showToast(`${name} added!`);
-    // Scroll the chips to show the newly selected one
+    const displayName = plantLabel(plant);
+    showToast(`${displayName} added!`);
     const sel = plantChips.querySelector('.plant-chip.selected');
     if (sel) sel.scrollIntoView({ inline: 'center', behavior: 'smooth' });
   } catch (err) {
@@ -1288,13 +1579,53 @@ function resetConnection() {
   connectionFields.classList.remove('open');
 }
 
-// ── Category Chips ──
-document.querySelectorAll('.category-chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('selected'));
-    chip.classList.add('selected');
-    selectedCategory = chip.dataset.cat;
+// ── Category Chips (dynamic) ──
+function renderCategoryChips() {
+  const container = document.getElementById('categoryChips');
+  const custom = getCustomCategories();
+  const allCats = [...DEFAULT_CATEGORIES, ...custom.map(c => ({ name: c.name, icon: '🏷️', label: c.name }))];
+
+  container.innerHTML = allCats.map(c => {
+    const sel = selectedCategories.has(c.name) ? ' selected' : '';
+    return `<button class="category-chip${sel}" data-cat="${esc(c.name)}"><span class="chip-icon">${c.icon}</span> ${esc(c.label)}</button>`;
+  }).join('') + '<button class="category-chip add-category" id="addCatChip">+ New</button>';
+
+  container.querySelectorAll('.category-chip:not(.add-category)').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const cat = chip.dataset.cat;
+      if (selectedCategories.has(cat)) {
+        selectedCategories.delete(cat);
+        chip.classList.remove('selected');
+      } else {
+        selectedCategories.add(cat);
+        chip.classList.add('selected');
+      }
+    });
   });
+
+  document.getElementById('addCatChip').addEventListener('click', () => {
+    document.getElementById('addCatInline').style.display = 'flex';
+    document.getElementById('newCatName').value = '';
+    document.getElementById('newCatName').focus();
+  });
+}
+
+document.getElementById('addCatSaveBtn').addEventListener('click', () => {
+  const name = document.getElementById('newCatName').value.trim().toLowerCase();
+  if (!name) { showToast('Enter a category name'); return; }
+  const custom = getCustomCategories();
+  const allNames = DEFAULT_CATEGORIES.map(c => c.name).concat(custom.map(c => c.name));
+  if (allNames.includes(name)) { showToast('Category already exists'); return; }
+  custom.push({ name });
+  saveCustomCategories(custom);
+  selectedCategories.add(name);
+  document.getElementById('addCatInline').style.display = 'none';
+  renderCategoryChips();
+  showToast(`"${name}" added!`);
+});
+
+document.getElementById('addCatCancelBtn').addEventListener('click', () => {
+  document.getElementById('addCatInline').style.display = 'none';
 });
 
 // ── Observer Toggle ──
@@ -1309,9 +1640,11 @@ document.querySelectorAll('.observer-btn').forEach(btn => {
 // ── Form ──
 function resetForm() {
   selectedPlant = '';
+  selectedPlantObj = null;
   noteInput.value = '';
-  selectedCategory = '';
-  document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('selected'));
+  selectedCategories = new Set();
+  document.getElementById('addCatInline').style.display = 'none';
+  renderCategoryChips();
   resetConnection();
 }
 
@@ -1327,14 +1660,19 @@ cancelBtn.addEventListener('click', () => {
 
 saveBtn.addEventListener('click', async () => {
   const now = new Date();
+  const noteText = noteInput.value.trim();
+  const cats = selectedCategories.size > 0 ? [...selectedCategories] : ['general'];
+  // Find the plant object to store latin name with observation
+  const plantObj = selectedPlantObj || allPlantsCache.find(p => plantLabel(p) === selectedPlant);
   const observation = {
     id: crypto.randomUUID(),
     date: now.toISOString().slice(0, 10),
     time: now.toTimeString().slice(0, 5),
     observer: selectedObserver,
     plant: selectedPlant || 'Unknown',
-    category: selectedCategory || 'general',
-    note: noteInput.value.trim(),
+    plantSci: plantObj ? (plantObj.sci || '') : '',
+    category: cats,
+    notes: noteText ? [{ text: noteText, timestamp: now.toISOString() }] : [],
     connection: getConnection(),
     photo: currentPhotoDataURL,
     photoTimestamp: now.toISOString()
@@ -1364,7 +1702,8 @@ saveBtn.addEventListener('click', async () => {
 
 // ── Recent List ──
 async function renderRecent() {
-  const observations = await getAllObservations();
+  let observations = await getAllObservations();
+  observations = observations.map(normalizeObs);
   observations.sort((a, b) => b.photoTimestamp.localeCompare(a.photoTimestamp));
   const recent = observations.slice(0, 10);
 
@@ -1373,16 +1712,20 @@ async function renderRecent() {
     return;
   }
 
-  recentList.innerHTML = recent.map(obs => `
-    <div class="recent-card" data-id="${obs.id}">
+  recentList.innerHTML = recent.map(obs => {
+    const cats = Array.isArray(obs.category) ? obs.category : [obs.category];
+    const catLabel = cats.length > 1 ? cats[0] + ' +' + (cats.length - 1) : cats[0];
+    const latin = obs.plantSci ? `<div class="plant-latin">${esc(obs.plantSci)}</div>` : '';
+    return `<div class="recent-card" data-id="${obs.id}">
       <img src="${obs.photo}" alt="Photo" loading="lazy">
       <div class="info">
         <div class="title">${esc(obs.plant)}</div>
+        ${latin}
         <div class="meta">${obs.date} · ${obs.observer}</div>
       </div>
-      <div class="category-badge">${esc(obs.category)}</div>
-    </div>
-  `).join('');
+      <div class="category-badge">${esc(catLabel)}</div>
+    </div>`;
+  }).join('');
 
   recentList.querySelectorAll('.recent-card').forEach(card => {
     card.addEventListener('click', () => showDetail(card.dataset.id, observations));
@@ -1432,14 +1775,31 @@ async function renderUnsorted() {
 }
 
 // ── Detail View ──
+let currentDetailObs = null;
+
 function showDetail(id, observations) {
   const obs = observations.find(o => o.id === id);
   if (!obs) return;
+  currentDetailObs = normalizeObs(obs);
   viewingObservationId = id;
+  renderDetailView();
+  showScreen(detailScreen);
+}
+
+function renderDetailView() {
+  const obs = currentDetailObs;
+  if (!obs) return;
   document.getElementById('detailImg').src = obs.photo;
   document.getElementById('detailPlant').textContent = obs.plant;
-  document.getElementById('detailCategory').textContent = obs.category;
-  document.getElementById('detailNote').textContent = obs.note || '—';
+  // Latin name
+  const latinEl = document.getElementById('detailPlantLatin');
+  latinEl.textContent = obs.plantSci || '';
+  latinEl.style.display = obs.plantSci ? '' : 'none';
+  // Categories
+  const cats = Array.isArray(obs.category) ? obs.category : [obs.category];
+  document.getElementById('detailCategory').innerHTML = cats.map(c => `<span class="detail-cat-badge">${esc(c)}</span>`).join('');
+  // Notes timeline
+  renderNotesTimeline(obs);
   document.getElementById('detailObserver').textContent = obs.observer;
   document.getElementById('detailDate').textContent = `${obs.date} at ${obs.time}`;
   // Connection
@@ -1451,11 +1811,98 @@ function showDetail(id, observations) {
   } else {
     connField.style.display = 'none';
   }
-  showScreen(detailScreen);
 }
 
+function renderNotesTimeline(obs) {
+  const container = document.getElementById('detailNote');
+  const notes = obs.notes || [];
+
+  if (notes.length === 0) {
+    container.innerHTML = '<div class="note-timeline"><div class="note-entry"><div class="note-text" style="color:var(--brown-light);">No notes</div></div></div>';
+    return;
+  }
+
+  let html = '<div class="note-timeline">';
+  notes.forEach((n, i) => {
+    const ts = new Date(n.timestamp);
+    const dateStr = ts.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      + ' ' + ts.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    html += `<div class="note-entry" data-idx="${i}">
+      <div class="note-ts">${esc(dateStr)}</div>
+      <div class="note-text">${esc(n.text)}</div>
+      <button class="note-edit-btn" data-idx="${i}">Edit</button>
+    </div>`;
+  });
+  html += '</div>';
+  container.innerHTML = html;
+
+  // Bind edit buttons
+  container.querySelectorAll('.note-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => startEditNote(parseInt(btn.dataset.idx)));
+  });
+}
+
+function startEditNote(idx) {
+  const obs = currentDetailObs;
+  const entry = document.querySelector(`.note-entry[data-idx="${idx}"]`);
+  if (!entry || !obs.notes[idx]) return;
+  const text = obs.notes[idx].text;
+  entry.querySelector('.note-text').style.display = 'none';
+  entry.querySelector('.note-edit-btn').style.display = 'none';
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  const actions = document.createElement('div');
+  actions.className = 'note-edit-actions';
+  actions.innerHTML = '<button class="btn-note-save">Save</button><button class="btn-note-cancel">Cancel</button>';
+  entry.appendChild(ta);
+  entry.appendChild(actions);
+  ta.focus();
+  actions.querySelector('.btn-note-cancel').addEventListener('click', () => {
+    ta.remove();
+    actions.remove();
+    entry.querySelector('.note-text').style.display = '';
+    entry.querySelector('.note-edit-btn').style.display = '';
+  });
+  actions.querySelector('.btn-note-save').addEventListener('click', async () => {
+    const newText = ta.value.trim();
+    if (!newText) { showToast('Note cannot be empty'); return; }
+    obs.notes[idx].text = newText;
+    await updateObservation(obs);
+    renderNotesTimeline(obs);
+    showToast('Note updated');
+  });
+}
+
+// Add Note button in detail actions
+document.getElementById('editObsBtn').addEventListener('click', () => {
+  if (!currentDetailObs) return;
+  const container = document.getElementById('detailNote');
+  // Check if add-note area already open
+  if (container.querySelector('.add-note-area')) return;
+  const area = document.createElement('div');
+  area.className = 'add-note-area';
+  area.innerHTML = `<textarea placeholder="Add a follow-up note..."></textarea>
+    <div class="note-edit-actions">
+      <button class="btn-note-save">Save Note</button>
+      <button class="btn-note-cancel">Cancel</button>
+    </div>`;
+  container.appendChild(area);
+  area.querySelector('textarea').focus();
+  area.querySelector('.btn-note-cancel').addEventListener('click', () => area.remove());
+  area.querySelector('.btn-note-save').addEventListener('click', async () => {
+    const text = area.querySelector('textarea').value.trim();
+    if (!text) { showToast('Enter a note'); return; }
+    currentDetailObs.notes.push({ text, timestamp: new Date().toISOString() });
+    await updateObservation(currentDetailObs);
+    renderNotesTimeline(currentDetailObs);
+    showToast('Note added');
+  });
+});
+
 document.getElementById('backBtn').addEventListener('click', () => {
+  currentDetailObs = null;
   showScreen(homeScreen);
+  renderRecent();
 });
 
 document.getElementById('deleteBtn').addEventListener('click', async () => {
@@ -1463,6 +1910,7 @@ document.getElementById('deleteBtn').addEventListener('click', async () => {
   if (!confirm('Delete this observation?')) return;
   await deleteObservation(viewingObservationId);
   viewingObservationId = null;
+  currentDetailObs = null;
   showToast('Deleted');
   showScreen(homeScreen);
   renderRecent();
@@ -1476,15 +1924,26 @@ function formatObsDate(obs) {
 }
 
 function obsToMarkdown(obs) {
+  const o = normalizeObs({...obs, notes: obs.notes ? [...obs.notes] : undefined, category: Array.isArray(obs.category) ? [...obs.category] : obs.category});
   const categoryMap = {
     'plant health': 'Plant health', 'insect': 'Insect visitor', 'bird': 'Bird visitor',
     'wildlife': 'Wildlife', 'soil': 'Soil', 'bloom': 'Bloom', 'weather': 'Weather', 'general': 'General'
   };
+  const cats = o.category.map(c => categoryMap[c] || c).join(', ');
   let md = `# Field Observation — ${formatObsDate(obs)}\n`;
   md += `**Observer:** ${obs.observer}\n`;
-  md += `**Plant:** ${obs.plant}\n`;
-  md += `**Category:** ${categoryMap[obs.category] || obs.category}\n\n`;
-  if (obs.note) md += `${obs.note}\n\n`;
+  md += `**Plant:** ${obs.plant}`;
+  if (obs.plantSci) md += ` (_${obs.plantSci}_)`;
+  md += `\n`;
+  md += `**Category:** ${cats}\n\n`;
+  if (o.notes && o.notes.length > 0) {
+    o.notes.forEach(n => {
+      const ts = new Date(n.timestamp);
+      const dateStr = ts.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        + ' ' + ts.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      md += `**${dateStr}:** ${n.text}\n\n`;
+    });
+  }
   if (obs.connection && obs.connection.subject) {
     md += `**Connection:** ${obs.connection.subject} \u2192 ${obs.connection.relationship} \u2192 ${obs.connection.target}\n\n`;
   }
@@ -1635,6 +2094,7 @@ function showToast(msg) {
 // ── Init ──
 (async function init() {
   await openDB();
+  renderCategoryChips();
   renderRecent();
   renderUnsorted();
   updateExportBar();
