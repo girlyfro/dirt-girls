@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dirt-girls-v7';
+const CACHE_NAME = 'dirt-girls-v8';
 const ASSETS = [
   './',
   './index.html',

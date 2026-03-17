@@ -1823,7 +1823,9 @@ function renderNotesTimeline(obs) {
   }
 
   let html = '<div class="note-timeline">';
-  notes.forEach((n, i) => {
+  const sorted = notes.map((n, i) => ({...n, _idx: i})).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  sorted.forEach(n => {
+    const i = n._idx;
     const ts = new Date(n.timestamp);
     const dateStr = ts.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
       + ' ' + ts.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
@@ -2010,9 +2012,10 @@ async function exportNewObservations() {
   // Build files array: one md + one photo per observation
   const files = [];
   for (const obs of newObs) {
-    const md = obsToMarkdown(obs);
-    files.push(new File([md], obsFilename(obs), { type: 'text/markdown' }));
-    if (obs.photo) {
+    const normalized = normalizeObs(obs);
+    const md = obsToMarkdown(normalized);
+    files.push(new File([md], obsFilename(normalized), { type: 'text/markdown' }));
+    if (normalized.photo) {
       try {
         const blob = await dataURLtoBlob(obs.photo);
         const plant = obs.plant.replace(/[^a-zA-Z0-9]+/g, '_').replace(/(^_|_$)/g, '');
@@ -2028,13 +2031,33 @@ async function exportNewObservations() {
       updateExportBar();
       showToast(`${newObs.length} observations exported!`);
     } catch (err) {
-      if (err.name !== 'AbortError') showToast('Export cancelled');
+      if (err.name === 'AbortError') {
+        // User cancelled share dialog — do nothing
+      } else {
+        console.error('Share failed:', err);
+        showToast('Share failed — trying download…');
+        // Fall through to download fallback
+        let combined = '';
+        for (const o of newObs) {
+          combined += obsToMarkdown(normalizeObs(o)) + '\n---\n\n';
+        }
+        const file = new File([combined], `dirt-girls-export-${new Date().toISOString().slice(0, 10)}.md`, { type: 'text/markdown' });
+        const url = URL.createObjectURL(file);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.name;
+        a.click();
+        URL.revokeObjectURL(url);
+        markExported(newObs.map(o => o.id));
+        updateExportBar();
+        showToast(`${newObs.length} observations downloaded`);
+      }
     }
   } else {
     // Fallback: share one at a time won't work well, download a combined file
     let combined = '';
     for (const obs of newObs) {
-      combined += obsToMarkdown(obs) + '\n---\n\n';
+      combined += obsToMarkdown(normalizeObs(obs)) + '\n---\n\n';
     }
     const file = new File([combined], `dirt-girls-export-${new Date().toISOString().slice(0, 10)}.md`, { type: 'text/markdown' });
     const url = URL.createObjectURL(file);
