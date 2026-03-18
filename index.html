@@ -907,6 +907,318 @@ textarea.note-input:focus {
 .modal-actions .btn-save { flex: 1; }
 .modal-actions .btn-cancel { flex: 0; }
 
+/* Bottom Nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: white;
+  border-top: 1px solid var(--border);
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.bottom-nav .nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 0 6px;
+  border: none;
+  background: none;
+  color: var(--brown-light);
+  font-size: 0.65rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.bottom-nav .nav-tab svg { width: 22px; height: 22px; }
+.bottom-nav .nav-tab.active { color: var(--terracotta); }
+.bottom-nav.hidden { display: none; }
+
+/* Plants Screen */
+#plants-screen {
+  padding: 0 16px 80px;
+}
+.plants-screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 12px;
+}
+.plants-screen-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--brown);
+}
+.plants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+.plant-card {
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(62, 39, 35, 0.08);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.plant-card:active { transform: scale(0.97); }
+.plant-card-photo {
+  aspect-ratio: 1;
+  background: var(--sage-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.plant-card-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.plant-card-photo .placeholder-icon {
+  font-size: 2.5rem;
+  opacity: 0.5;
+}
+.plant-card-photo .card-fav-star {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 1rem;
+  color: var(--gold);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.plant-card-info {
+  padding: 8px 10px 10px;
+}
+.plant-card-info .card-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--brown);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.plant-card-info .card-sci {
+  font-size: 0.7rem;
+  color: var(--brown-light);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+/* FAB */
+.fab-add {
+  position: fixed;
+  bottom: 72px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: var(--terracotta);
+  color: white;
+  font-size: 1.6rem;
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(193, 105, 79, 0.4);
+  cursor: pointer;
+  z-index: 90;
+  -webkit-tap-highlight-color: transparent;
+}
+.fab-add:active { background: var(--terracotta-dark); }
+.fab-add.hidden { display: none; }
+
+/* Plant Profile Screen */
+#plant-profile-screen {
+  padding: 0 0 24px;
+}
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+}
+.profile-back-btn {
+  border: none;
+  background: none;
+  color: var(--brown);
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+.profile-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--brown);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.profile-fav-btn {
+  border: none;
+  background: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: var(--gold);
+  padding: 4px 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+.profile-hero {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--sage-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.profile-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.profile-hero .placeholder-icon {
+  font-size: 3.5rem;
+  opacity: 0.4;
+}
+.profile-info {
+  padding: 16px;
+}
+.profile-info .profile-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--brown);
+}
+.profile-info .profile-common {
+  font-size: 0.85rem;
+  color: var(--brown-light);
+  margin-top: 2px;
+}
+.profile-info .profile-sci {
+  font-size: 0.85rem;
+  color: var(--brown-light);
+  font-style: italic;
+  margin-top: 2px;
+}
+.profile-info .profile-meta {
+  font-size: 0.75rem;
+  color: var(--brown-light);
+  margin-top: 6px;
+}
+.profile-stats {
+  display: flex;
+  gap: 16px;
+  padding: 0 16px 12px;
+}
+.profile-stat {
+  background: var(--sage-light);
+  border-radius: 10px;
+  padding: 10px 14px;
+  flex: 1;
+  text-align: center;
+}
+.profile-stat .stat-num {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--terracotta);
+}
+.profile-stat .stat-label {
+  font-size: 0.65rem;
+  color: var(--brown-light);
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.profile-timeline-header {
+  padding: 12px 16px 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--brown);
+}
+.profile-timeline {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.profile-obs-card {
+  display: flex;
+  gap: 10px;
+  background: white;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 1px 4px rgba(62, 39, 35, 0.06);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.profile-obs-card:active { background: var(--sage-light); }
+.profile-obs-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--sage-light);
+}
+.profile-obs-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.profile-obs-info {
+  flex: 1;
+  min-width: 0;
+}
+.profile-obs-info .obs-date {
+  font-size: 0.75rem;
+  color: var(--brown-light);
+  font-weight: 600;
+}
+.profile-obs-info .obs-cats {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 3px;
+}
+.profile-obs-info .obs-cat-badge {
+  font-size: 0.6rem;
+  background: var(--sage-light);
+  color: var(--sage);
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+.profile-obs-info .obs-note-preview {
+  font-size: 0.75rem;
+  color: var(--brown-light);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.profile-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--brown-light);
+  font-size: 0.85rem;
+}
+
+/* Adjust home/plants screens for bottom nav */
+#home-screen.active, #plants-screen.active { padding-bottom: 72px; }
+
 /* Toast */
 .toast {
   position: fixed;
@@ -924,6 +1236,7 @@ textarea.note-input:focus {
   pointer-events: none;
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
+.toast { bottom: 80px; }
 
 /* Install banner */
 .install-banner {
@@ -1079,6 +1392,33 @@ textarea.note-input:focus {
   </div>
 </div>
 
+<!-- MY PLANTS SCREEN -->
+<div id="plants-screen" class="screen">
+  <div class="plants-screen-header">
+    <h2>My Plants</h2>
+  </div>
+  <div class="plants-grid" id="plantsGrid"></div>
+</div>
+
+<!-- PLANT PROFILE SCREEN -->
+<div id="plant-profile-screen" class="screen">
+  <div class="profile-header">
+    <button class="profile-back-btn" id="profileBackBtn">&larr;</button>
+    <h2 id="profileName"></h2>
+    <button class="profile-fav-btn" id="profileFavBtn"></button>
+  </div>
+  <div class="profile-hero" id="profileHero"></div>
+  <div class="profile-info">
+    <div class="profile-name" id="profileDisplayName"></div>
+    <div class="profile-common" id="profileCommon"></div>
+    <div class="profile-sci" id="profileSci"></div>
+    <div class="profile-meta" id="profileMeta"></div>
+  </div>
+  <div class="profile-stats" id="profileStats"></div>
+  <div class="profile-timeline-header">Observations</div>
+  <div class="profile-timeline" id="profileTimeline"></div>
+</div>
+
 <!-- DETAIL SCREEN -->
 <div id="detail-screen" class="screen">
   <div class="detail-photo"><img id="detailImg" src="" alt="Observation photo"></div>
@@ -1132,6 +1472,20 @@ textarea.note-input:focus {
   <button class="btn-install" id="installBtn">Install</button>
   <button class="btn-dismiss" id="installDismiss">&times;</button>
 </div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="nav-tab active" id="navJournal">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    Journal
+  </button>
+  <button class="nav-tab" id="navPlants">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c-4-4-8-7.5-8-12a8 8 0 0 1 16 0c0 4.5-4 8-8 12z"/><path d="M12 10V6"/><path d="M9 8l3-3 3 3"/></svg>
+    My Plants
+  </button>
+</nav>
+
+<button class="fab-add hidden" id="fabAdd">+</button>
 
 <div class="toast" id="toast"></div>
 
@@ -1341,11 +1695,18 @@ let selectedObserver = 'Courtney';
 let selectedLocation = '';
 let viewingObservationId = null;
 let allPlantsCache = [];
+let navigationOrigin = 'home'; // track where detail screen was opened from
+let currentProfilePlant = null;
+let pendingPlantGridRefresh = false;
 
 // ── DOM Refs ──
 const homeScreen = document.getElementById('home-screen');
 const annotateScreen = document.getElementById('annotate-screen');
 const detailScreen = document.getElementById('detail-screen');
+const plantsScreen = document.getElementById('plants-screen');
+const plantProfileScreen = document.getElementById('plant-profile-screen');
+const bottomNav = document.getElementById('bottomNav');
+const fabAdd = document.getElementById('fabAdd');
 const cameraBtn = document.getElementById('cameraBtn');
 const galleryBtn = document.getElementById('galleryBtn');
 const cameraInput = document.getElementById('cameraInput');
@@ -1361,8 +1722,15 @@ const addPlantModal = document.getElementById('addPlantModal');
 
 // ── Navigation ──
 function showScreen(screen) {
-  [homeScreen, annotateScreen, detailScreen].forEach(s => s.classList.remove('active'));
+  [homeScreen, annotateScreen, detailScreen, plantsScreen, plantProfileScreen].forEach(s => s.classList.remove('active'));
   screen.classList.add('active');
+  // Show bottom nav only on home and plants screens
+  const showNav = (screen === homeScreen || screen === plantsScreen);
+  bottomNav.classList.toggle('hidden', !showNav);
+  fabAdd.classList.toggle('hidden', screen !== plantsScreen);
+  // Update active nav tab
+  document.getElementById('navJournal').classList.toggle('active', screen === homeScreen);
+  document.getElementById('navPlants').classList.toggle('active', screen === plantsScreen);
   window.scrollTo(0, 0);
 }
 
@@ -1494,7 +1862,10 @@ document.querySelectorAll('.location-chip').forEach(chip => {
   });
 });
 
-document.getElementById('addPlantCancelBtn').addEventListener('click', closeAddPlantModal);
+document.getElementById('addPlantCancelBtn').addEventListener('click', () => {
+  pendingPlantGridRefresh = false;
+  closeAddPlantModal();
+});
 
 document.getElementById('addPlantSaveBtn').addEventListener('click', async () => {
   const name = document.getElementById('newPlantName').value.trim();
@@ -1522,6 +1893,10 @@ document.getElementById('addPlantSaveBtn').addEventListener('click', async () =>
     await renderPlantChips();
     const displayName = plantLabel(plant);
     showToast(`${displayName} added!`);
+    if (pendingPlantGridRefresh) {
+      pendingPlantGridRefresh = false;
+      renderPlantsGrid();
+    }
     const sel = plantChips.querySelector('.plant-chip.selected');
     if (sel) sel.scrollIntoView({ inline: 'center', behavior: 'smooth' });
   } catch (err) {
@@ -1780,6 +2155,7 @@ let currentDetailObs = null;
 function showDetail(id, observations) {
   const obs = observations.find(o => o.id === id);
   if (!obs) return;
+  navigationOrigin = 'home';
   currentDetailObs = normalizeObs(obs);
   viewingObservationId = id;
   renderDetailView();
@@ -1903,8 +2279,13 @@ document.getElementById('editObsBtn').addEventListener('click', () => {
 
 document.getElementById('backBtn').addEventListener('click', () => {
   currentDetailObs = null;
-  showScreen(homeScreen);
-  renderRecent();
+  if (navigationOrigin === 'profile' && currentProfilePlant) {
+    openPlantProfile(currentProfilePlant);
+  } else {
+    showScreen(homeScreen);
+    renderRecent();
+  }
+  navigationOrigin = 'home';
 });
 
 document.getElementById('deleteBtn').addEventListener('click', async () => {
@@ -1914,8 +2295,13 @@ document.getElementById('deleteBtn').addEventListener('click', async () => {
   viewingObservationId = null;
   currentDetailObs = null;
   showToast('Deleted');
-  showScreen(homeScreen);
-  renderRecent();
+  if (navigationOrigin === 'profile' && currentProfilePlant) {
+    openPlantProfile(currentProfilePlant);
+  } else {
+    showScreen(homeScreen);
+    renderRecent();
+  }
+  navigationOrigin = 'home';
 });
 
 // ── Share / Export ──
@@ -2106,6 +2492,198 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
 });
 
 document.getElementById('exportAllBtn').addEventListener('click', exportNewObservations);
+
+// ── Bottom Nav ──
+document.getElementById('navJournal').addEventListener('click', () => {
+  showScreen(homeScreen);
+  renderRecent();
+});
+document.getElementById('navPlants').addEventListener('click', () => {
+  showScreen(plantsScreen);
+  renderPlantsGrid();
+});
+
+// ── FAB ──
+fabAdd.addEventListener('click', () => {
+  pendingPlantGridRefresh = true;
+  openAddPlantModal();
+});
+
+// ── Plants Grid ──
+async function renderPlantsGrid() {
+  const plants = await getAllPlants();
+  const observations = await getAllObservations();
+
+  // Build photo map: plantLabel → most recent photo
+  const photoMap = {};
+  const sorted = observations.sort((a, b) => (b.photoTimestamp || '').localeCompare(a.photoTimestamp || ''));
+  for (const obs of sorted) {
+    if (obs.photo && obs.plant && !photoMap[obs.plant]) {
+      photoMap[obs.plant] = obs.photo;
+    }
+  }
+
+  // Sort: favorites first, then alphabetical
+  plants.sort((a, b) => {
+    if (a.favorite !== b.favorite) return b.favorite ? 1 : -1;
+    return plantLabel(a).localeCompare(plantLabel(b));
+  });
+
+  const grid = document.getElementById('plantsGrid');
+  if (plants.length === 0) {
+    grid.innerHTML = '<div class="profile-empty">No plants yet. Tap + to add one!</div>';
+    return;
+  }
+
+  grid.innerHTML = plants.map(p => {
+    const label = esc(plantLabel(p));
+    const sci = p.sci ? esc(p.sci) : '';
+    const photo = photoMap[plantLabel(p)];
+    const photoHTML = photo
+      ? `<img src="${photo}" alt="${label}">`
+      : '<div class="placeholder-icon">🌿</div>';
+    const starHTML = p.favorite ? '<div class="card-fav-star">★</div>' : '';
+    return `<div class="plant-card" data-plant-id="${esc(p.id)}">
+      <div class="plant-card-photo">${photoHTML}${starHTML}</div>
+      <div class="plant-card-info">
+        <div class="card-name">${label}</div>
+        ${sci ? `<div class="card-sci">${sci}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Bind card taps
+  grid.querySelectorAll('.plant-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const plantId = card.dataset.plantId;
+      const plant = plants.find(p => p.id === plantId);
+      if (plant) openPlantProfile(plant);
+    });
+  });
+}
+
+// ── Plant Profile ──
+async function openPlantProfile(plant) {
+  currentProfilePlant = plant;
+  const observations = (await getAllObservations())
+    .map(normalizeObs)
+    .filter(obs => obs.plant === plantLabel(plant))
+    .sort((a, b) => (a.photoTimestamp || '').localeCompare(b.photoTimestamp || ''));
+
+  // Header
+  document.getElementById('profileName').textContent = plantLabel(plant);
+  document.getElementById('profileFavBtn').textContent = plant.favorite ? '★' : '☆';
+
+  // Hero photo — latest observation
+  const heroObs = [...observations].reverse().find(o => o.photo);
+  const heroEl = document.getElementById('profileHero');
+  heroEl.innerHTML = heroObs
+    ? `<img src="${heroObs.photo}" alt="${esc(plantLabel(plant))}">`
+    : '<div class="placeholder-icon">🌿</div>';
+
+  // Info
+  const displayName = plantLabel(plant);
+  document.getElementById('profileDisplayName').textContent = displayName;
+  const commonEl = document.getElementById('profileCommon');
+  if (plant.nickname && plant.name !== plant.nickname) {
+    commonEl.textContent = plant.name;
+    commonEl.style.display = '';
+  } else {
+    commonEl.style.display = 'none';
+  }
+  document.getElementById('profileSci').textContent = plant.sci || '';
+  const metaParts = [];
+  if (plant.location) metaParts.push(plant.location.charAt(0).toUpperCase() + plant.location.slice(1) + ' yard');
+  if (plant.group) metaParts.push(plant.group);
+  document.getElementById('profileMeta').textContent = metaParts.join(' · ');
+
+  // Stats
+  const statsEl = document.getElementById('profileStats');
+  const count = observations.length;
+  let dateRange = '';
+  if (count > 0) {
+    const first = observations[0].date;
+    const last = observations[observations.length - 1].date;
+    dateRange = first === last ? first : `${first} — ${last}`;
+  }
+  statsEl.innerHTML = `
+    <div class="profile-stat"><div class="stat-num">${count}</div><div class="stat-label">Observations</div></div>
+    <div class="profile-stat"><div class="stat-num">${dateRange || '—'}</div><div class="stat-label">${count > 0 ? 'Date Range' : 'No Data'}</div></div>
+  `;
+
+  // Timeline
+  renderPlantTimeline(observations);
+
+  showScreen(plantProfileScreen);
+}
+
+function renderPlantTimeline(observations) {
+  const el = document.getElementById('profileTimeline');
+  if (observations.length === 0) {
+    el.innerHTML = '<div class="profile-empty">No observations yet for this plant.</div>';
+    return;
+  }
+
+  el.innerHTML = observations.map(obs => {
+    const date = new Date(obs.photoTimestamp || obs.date);
+    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const cats = (obs.category || []).slice(0, 3).map(c => `<span class="obs-cat-badge">${esc(c)}</span>`).join('');
+    const notePreview = obs.notes && obs.notes.length > 0 ? esc(obs.notes[0].text) : '';
+    const thumbHTML = obs.photo ? `<img src="${obs.photo}" alt="">` : '';
+    return `<div class="profile-obs-card" data-obs-id="${esc(obs.id)}">
+      <div class="profile-obs-thumb">${thumbHTML}</div>
+      <div class="profile-obs-info">
+        <div class="obs-date">${esc(dateStr)}</div>
+        <div class="obs-cats">${cats}</div>
+        ${notePreview ? `<div class="obs-note-preview">${notePreview}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Bind observation card taps
+  el.querySelectorAll('.profile-obs-card').forEach(card => {
+    card.addEventListener('click', async () => {
+      const obsId = card.dataset.obsId;
+      navigationOrigin = 'profile';
+      const allObs = await getAllObservations();
+      viewingObservationId = obsId;
+      const obs = normalizeObs(allObs.find(o => o.id === obsId));
+      if (!obs) return;
+      currentDetailObs = obs;
+      document.getElementById('detailImg').src = obs.photo || '';
+      document.getElementById('detailPlant').textContent = obs.plant;
+      document.getElementById('detailPlantLatin').textContent = obs.plantSci || '';
+      const catHTML = (obs.category || []).map(c => `<span class="detail-cat-badge">${esc(c)}</span>`).join('');
+      document.getElementById('detailCategory').innerHTML = catHTML;
+      renderNotesTimeline(obs);
+      document.getElementById('detailObserver').textContent = obs.observer;
+      document.getElementById('detailDate').textContent = formatObsDate(obs);
+      const connField = document.getElementById('detailConnectionField');
+      if (obs.connection && obs.connection.subject) {
+        connField.style.display = '';
+        document.getElementById('detailConnection').textContent = `${obs.connection.subject} → ${obs.connection.relationship} → ${obs.connection.target}`;
+      } else {
+        connField.style.display = 'none';
+      }
+      showScreen(detailScreen);
+    });
+  });
+}
+
+// Profile favorite toggle
+document.getElementById('profileFavBtn').addEventListener('click', async () => {
+  if (!currentProfilePlant) return;
+  currentProfilePlant.favorite = !currentProfilePlant.favorite;
+  await updatePlant(currentProfilePlant);
+  document.getElementById('profileFavBtn').textContent = currentProfilePlant.favorite ? '★' : '☆';
+});
+
+// Profile back button
+document.getElementById('profileBackBtn').addEventListener('click', () => {
+  currentProfilePlant = null;
+  showScreen(plantsScreen);
+  renderPlantsGrid();
+});
 
 // ── Toast ──
 function showToast(msg) {
