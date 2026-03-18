@@ -1289,6 +1289,122 @@ textarea.note-input:focus {
 }
 .modal-select:focus { outline: 2px solid var(--terracotta); border-color: var(--terracotta); }
 .modal-card { max-height: 85vh; max-height: 85dvh; overflow-y: auto; }
+/* Plant ID / iNaturalist */
+.modal-photo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.modal-photo-preview {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  background: var(--sage-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.modal-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.modal-photo-preview .placeholder-icon {
+  font-size: 1.5rem;
+  opacity: 0.4;
+}
+.btn-choose-photo {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: white;
+  color: var(--brown);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-choose-photo:active { background: var(--sage-light); }
+.btn-identify {
+  display: none;
+  width: 100%;
+  padding: 10px;
+  border: 2px solid var(--terracotta);
+  border-radius: 10px;
+  background: white;
+  color: var(--terracotta);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.btn-identify.visible { display: block; }
+.btn-identify:active { background: var(--terracotta); color: white; }
+.btn-identify:disabled { opacity: 0.5; cursor: default; }
+.btn-identify.loading { opacity: 0.7; }
+.id-suggestions {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.id-suggestions.visible { display: flex; }
+.id-suggestion-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.id-suggestion-card:active { background: var(--sage-light); border-color: var(--sage); }
+.id-suggestion-card .id-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--brown);
+}
+.id-suggestion-card .id-sci {
+  font-size: 0.75rem;
+  color: var(--brown-light);
+  font-style: italic;
+}
+.id-suggestion-card .id-score {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--sage);
+  flex-shrink: 0;
+}
+.id-dismiss {
+  font-size: 0.75rem;
+  color: var(--brown-light);
+  text-align: center;
+  cursor: pointer;
+  padding: 4px;
+  text-decoration: underline;
+}
+.id-error {
+  font-size: 0.8rem;
+  color: #c62828;
+  padding: 6px 0;
+  text-align: center;
+}
+.inat-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: var(--sage-light);
+  color: var(--sage);
+}
+
 .profile-edit-btn {
   border: none;
   background: none;
@@ -1529,6 +1645,13 @@ textarea.note-input:focus {
 <div class="modal-overlay" id="addPlantModal">
   <div class="modal-card">
     <h2>Add New Plant</h2>
+    <div class="modal-photo-area">
+      <div class="modal-photo-preview" id="modalPhotoPreview"><div class="placeholder-icon">📷</div></div>
+      <button class="btn-choose-photo" id="modalPhotoBtn">Take / choose photo</button>
+      <input type="file" id="modalPhotoInput" accept="image/*" style="display:none">
+    </div>
+    <button class="btn-identify" id="identifyBtn">🔍 Identify Plant</button>
+    <div class="id-suggestions" id="idSuggestions"></div>
     <label class="modal-input-label" for="newPlantName">Common name *</label>
     <input type="text" id="newPlantName" class="modal-input" placeholder="e.g. Eastern Redbud" autocomplete="off">
     <label class="modal-input-label" for="newPlantNickname">Nickname (optional)</label>
@@ -1586,7 +1709,7 @@ textarea.note-input:focus {
 <script>
 // ── IndexedDB Setup ──
 const DB_NAME = 'DirtGirlsDB';
-const DB_VERSION = 5;
+const DB_VERSION = 6;
 let db;
 
 const NATIVE_STATUS_OPTIONS = [
@@ -1630,14 +1753,14 @@ function sourceShortLabel(val) {
 }
 
 const DEFAULT_PLANTS = [
-  { id: 'mother-tree',  name: 'Mother Tree',  sci: 'Cercis canadensis', location: 'front', group: 'tree', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
-  { id: 'sister-1',     name: 'Sister 1',     sci: 'Cercis canadensis (volunteer)', location: 'front', group: 'tree', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
-  { id: 'sister-2',     name: 'Sister 2',     sci: 'Cercis canadensis (volunteer)', location: 'front', group: 'tree', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
-  { id: 'turks-cap',    name: "Turk's Cap",   sci: 'Malvaviscus arboreus', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
-  { id: 'sea-oats',     name: 'Sea Oats',     sci: 'Chasmanthium latifolium', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
-  { id: 'pentas',       name: 'Pentas',       sci: 'Pentas lanceolata', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
-  { id: 'easter-lily',  name: 'Easter Lily',  sci: 'Lilium longiflorum', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
-  { id: 'spider-lily',  name: 'Spider Lily',  sci: 'Hymenocallis', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
+  { id: 'mother-tree',  name: 'Mother Tree',  sci: 'Cercis canadensis', location: 'front', group: 'tree', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '', identifiedBy: '' },
+  { id: 'sister-1',     name: 'Sister 1',     sci: 'Cercis canadensis (volunteer)', location: 'front', group: 'tree', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '', identifiedBy: '' },
+  { id: 'sister-2',     name: 'Sister 2',     sci: 'Cercis canadensis (volunteer)', location: 'front', group: 'tree', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '', identifiedBy: '' },
+  { id: 'turks-cap',    name: "Turk's Cap",   sci: 'Malvaviscus arboreus', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '', identifiedBy: '' },
+  { id: 'sea-oats',     name: 'Sea Oats',     sci: 'Chasmanthium latifolium', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '', identifiedBy: '' },
+  { id: 'pentas',       name: 'Pentas',       sci: 'Pentas lanceolata', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '', identifiedBy: '' },
+  { id: 'easter-lily',  name: 'Easter Lily',  sci: 'Lilium longiflorum', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '', identifiedBy: '' },
+  { id: 'spider-lily',  name: 'Spider Lily',  sci: 'Hymenocallis', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '', identifiedBy: '' },
 ];
 
 const DEFAULT_CATEGORIES = [
@@ -1723,6 +1846,19 @@ function openDB() {
             if (p.source === undefined) { p.source = ''; changed = true; }
             if (p.sourceNotes === undefined) { p.sourceNotes = ''; changed = true; }
             if (changed) cursor.update(p);
+            cursor.continue();
+          }
+        };
+      }
+      // v6 migration: add identifiedBy to existing plants
+      if (e.oldVersion < 6 && e.oldVersion >= 1) {
+        const plantStore = tx.objectStore('plants');
+        const cursorReq6 = plantStore.openCursor();
+        cursorReq6.onsuccess = (ev) => {
+          const cursor = ev.target.result;
+          if (cursor) {
+            const p = cursor.value;
+            if (p.identifiedBy === undefined) { p.identifiedBy = ''; cursor.update(p); }
             cursor.continue();
           }
         };
@@ -1849,6 +1985,8 @@ let allPlantsCache = [];
 let navigationOrigin = 'home'; // track where detail screen was opened from
 let currentProfilePlant = null;
 let pendingPlantGridRefresh = false;
+let modalPhotoBlob = null;
+let identifiedByINat = false;
 
 // ── DOM Refs ──
 const homeScreen = document.getElementById('home-screen');
@@ -2013,8 +2151,21 @@ function populateModalSelects() {
   }
 }
 
+function resetModalPhotoState() {
+  modalPhotoBlob = null;
+  identifiedByINat = false;
+  document.getElementById('modalPhotoPreview').innerHTML = '<div class="placeholder-icon">📷</div>';
+  document.getElementById('modalPhotoInput').value = '';
+  document.getElementById('identifyBtn').classList.remove('visible', 'loading');
+  document.getElementById('identifyBtn').disabled = false;
+  document.getElementById('identifyBtn').textContent = '🔍 Identify Plant';
+  document.getElementById('idSuggestions').classList.remove('visible');
+  document.getElementById('idSuggestions').innerHTML = '';
+}
+
 function openAddPlantModal() {
   editingPlant = null;
+  resetModalPhotoState();
   document.getElementById('newPlantName').value = '';
   document.getElementById('newPlantNickname').value = '';
   document.getElementById('newPlantSci').value = '';
@@ -2032,6 +2183,8 @@ function openAddPlantModal() {
 
 function openEditPlantModal(plant) {
   editingPlant = plant;
+  resetModalPhotoState();
+  identifiedByINat = (plant.identifiedBy === 'iNaturalist');
   document.getElementById('newPlantName').value = plant.name || '';
   document.getElementById('newPlantNickname').value = plant.nickname || '';
   document.getElementById('newPlantSci').value = plant.sci || '';
@@ -2053,6 +2206,129 @@ function closeAddPlantModal() {
   editingPlant = null;
   addPlantModal.classList.remove('open');
 }
+
+// ── Plant Photo ID ──
+function resizeImageBlob(file, maxSize) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let w = img.width, h = img.height;
+      if (w > maxSize || h > maxSize) {
+        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+        else { w = Math.round(w * maxSize / h); h = maxSize; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(resolve, 'image/jpeg', 0.85);
+    };
+    img.src = url;
+  });
+}
+
+async function identifyPlantFromImage(imageBlob) {
+  const formData = new FormData();
+  formData.append('image', imageBlob, 'photo.jpg');
+  const resp = await fetch('https://api.inaturalist.org/v1/computervision/score_image', {
+    method: 'POST',
+    body: formData
+  });
+  if (!resp.ok) throw new Error(`API returned ${resp.status}`);
+  const data = await resp.json();
+  const results = data.results || [];
+  return results.slice(0, 3).map(r => ({
+    commonName: (r.taxon && r.taxon.preferred_common_name) || '',
+    latinName: (r.taxon && r.taxon.name) || '',
+    score: Math.round((r.combined_score || r.vision_score || 0) * 100)
+  }));
+}
+
+// Modal photo input
+document.getElementById('modalPhotoBtn').addEventListener('click', () => {
+  document.getElementById('modalPhotoInput').click();
+});
+
+document.getElementById('modalPhotoInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  // Show preview
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    document.getElementById('modalPhotoPreview').innerHTML = `<img src="${ev.target.result}" alt="Plant photo">`;
+  };
+  reader.readAsDataURL(file);
+  // Resize for API
+  modalPhotoBlob = await resizeImageBlob(file, 1024);
+  // Show identify button
+  document.getElementById('identifyBtn').classList.add('visible');
+  document.getElementById('idSuggestions').classList.remove('visible');
+  document.getElementById('idSuggestions').innerHTML = '';
+});
+
+// Identify button
+document.getElementById('identifyBtn').addEventListener('click', async () => {
+  if (!modalPhotoBlob) return;
+  const btn = document.getElementById('identifyBtn');
+  const sugBox = document.getElementById('idSuggestions');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.textContent = '🔍 Identifying...';
+  sugBox.classList.remove('visible');
+  sugBox.innerHTML = '';
+
+  try {
+    const suggestions = await identifyPlantFromImage(modalPhotoBlob);
+    if (suggestions.length === 0) {
+      sugBox.innerHTML = '<div class="id-error">No species matches found. Try a clearer photo or type the name manually.</div>';
+    } else {
+      let html = '';
+      suggestions.forEach((s, i) => {
+        html += `<div class="id-suggestion-card" data-idx="${i}">
+          <div>
+            <div class="id-name">${esc(s.commonName || s.latinName)}</div>
+            <div class="id-sci">${esc(s.latinName)}</div>
+          </div>
+          <div class="id-score">${s.score}%</div>
+        </div>`;
+      });
+      html += '<div class="id-dismiss" id="idDismiss">None of these</div>';
+      sugBox.innerHTML = html;
+
+      // Bind suggestion taps
+      sugBox.querySelectorAll('.id-suggestion-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const idx = parseInt(card.dataset.idx);
+          const s = suggestions[idx];
+          if (s.commonName) document.getElementById('newPlantName').value = s.commonName;
+          document.getElementById('newPlantSci').value = s.latinName;
+          identifiedByINat = true;
+          sugBox.classList.remove('visible');
+          showToast('Name filled from iNaturalist');
+        });
+      });
+
+      // Dismiss
+      const dismissBtn = document.getElementById('idDismiss');
+      if (dismissBtn) {
+        dismissBtn.addEventListener('click', () => {
+          sugBox.classList.remove('visible');
+        });
+      }
+    }
+    sugBox.classList.add('visible');
+  } catch (err) {
+    console.error('Plant ID error:', err);
+    sugBox.innerHTML = `<div class="id-error">Could not identify plant. ${err.message || 'Check your connection and try again.'}</div>`;
+    sugBox.classList.add('visible');
+  }
+
+  btn.disabled = false;
+  btn.classList.remove('loading');
+  btn.textContent = '🔍 Identify Plant';
+});
 
 // Location chip selection
 document.querySelectorAll('.location-chip').forEach(chip => {
@@ -2089,6 +2365,7 @@ document.getElementById('addPlantSaveBtn').addEventListener('click', async () =>
     editingPlant.nativeStatus = nativeStatus || '';
     editingPlant.source = source || '';
     editingPlant.sourceNotes = sourceNotes || '';
+    if (identifiedByINat) editingPlant.identifiedBy = 'iNaturalist';
     try {
       await updatePlant(editingPlant);
       closeAddPlantModal();
@@ -2116,7 +2393,8 @@ document.getElementById('addPlantSaveBtn').addEventListener('click', async () =>
       favorite: false,
       nativeStatus: nativeStatus || '',
       source: source || '',
-      sourceNotes: sourceNotes || ''
+      sourceNotes: sourceNotes || '',
+      identifiedBy: identifiedByINat ? 'iNaturalist' : ''
     };
     try {
       await addPlant(plant);
@@ -2847,6 +3125,9 @@ async function openPlantProfile(plant) {
   }
   if (plant.source) {
     tagsHTML += `<span class="source-badge">${esc(sourceLabel(plant.source))}</span>`;
+  }
+  if (plant.identifiedBy === 'iNaturalist') {
+    tagsHTML += '<span class="inat-badge">🔬 Identified by iNaturalist</span>';
   }
   tagsEl.innerHTML = tagsHTML;
   const srcNotesEl = document.getElementById('profileSourceNotes');
