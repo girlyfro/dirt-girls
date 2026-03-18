@@ -1405,6 +1405,61 @@ textarea.note-input:focus {
   color: var(--sage);
 }
 
+/* Weather section */
+.weather-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  padding: 2px 0;
+}
+.weather-toggle label {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--brown);
+}
+.weather-arrow {
+  font-size: 0.8rem;
+  color: var(--brown-light);
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+.weather-arrow.open { transform: rotate(90deg); }
+.weather-details {
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  padding: 8px 0 4px;
+}
+.weather-details.open { display: grid; }
+.weather-item {
+  display: flex;
+  flex-direction: column;
+}
+.weather-item .w-label {
+  font-size: 0.65rem;
+  color: var(--brown-light);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.weather-item .w-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--brown);
+}
+.weather-condition {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--brown);
+  padding-bottom: 2px;
+}
+
 .profile-edit-btn {
   border: none;
   background: none;
@@ -1629,6 +1684,13 @@ textarea.note-input:focus {
     <div class="detail-field" id="detailConnectionField" style="display:none"><label>Connection</label><div class="detail-connection" id="detailConnection"></div></div>
     <div class="detail-field"><label>Observer</label><div class="value" id="detailObserver"></div></div>
     <div class="detail-field"><label>Date</label><div class="value" id="detailDate"></div></div>
+    <div class="detail-field" id="detailWeatherField" style="display:none">
+      <div class="weather-toggle" id="weatherToggle">
+        <label>Conditions at time of observation</label>
+        <span class="weather-arrow" id="weatherArrow">&#9656;</span>
+      </div>
+      <div class="weather-details" id="weatherDetails"></div>
+    </div>
   </div>
   <div class="detail-actions">
     <button class="btn-back" id="backBtn">Back</button>
@@ -2545,6 +2607,66 @@ cancelBtn.addEventListener('click', () => {
   renderUnsorted();
 });
 
+// ── Weather Helpers ──
+function wmoCodeToCondition(code) {
+  if (code === 0) return { text: 'Clear', icon: '\u2600\uFE0F' };
+  if (code <= 3) return { text: ['Clear', 'Mainly clear', 'Partly cloudy', 'Overcast'][code], icon: ['\u2600\uFE0F', '\uD83C\uDF24\uFE0F', '\u26C5', '\u2601\uFE0F'][code] };
+  if (code <= 49) return { text: 'Fog', icon: '\uD83C\uDF2B\uFE0F' };
+  if (code <= 59) return { text: 'Drizzle', icon: '\uD83C\uDF26\uFE0F' };
+  if (code <= 69) return { text: 'Rain', icon: '\uD83C\uDF27\uFE0F' };
+  if (code <= 79) return { text: 'Snow', icon: '\u2744\uFE0F' };
+  if (code <= 84) return { text: 'Rain showers', icon: '\uD83C\uDF27\uFE0F' };
+  if (code <= 86) return { text: 'Snow showers', icon: '\uD83C\uDF28\uFE0F' };
+  if (code <= 99) return { text: 'Thunderstorm', icon: '\u26C8\uFE0F' };
+  return { text: 'Unknown', icon: '\uD83C\uDF24\uFE0F' };
+}
+
+function degreesToCompass(deg) {
+  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  return dirs[Math.round(deg / 22.5) % 16];
+}
+
+async function fetchWeather(lat, lng) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`Weather API ${resp.status}`);
+  const data = await resp.json();
+  const c = data.current;
+  const cond = wmoCodeToCondition(c.weather_code);
+  return {
+    temp: Math.round(c.temperature_2m),
+    feelsLike: Math.round(c.apparent_temperature),
+    humidity: Math.round(c.relative_humidity_2m),
+    windSpeed: Math.round(c.wind_speed_10m),
+    windDir: degreesToCompass(c.wind_direction_10m),
+    precip: c.precipitation,
+    condition: cond.text,
+    conditionIcon: cond.icon,
+    fetchedAt: new Date().toISOString()
+  };
+}
+
+async function fetchAndAttachWeather(obsId) {
+  try {
+    const pos = await new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000, maximumAge: 300000 });
+    });
+    const weather = await fetchWeather(pos.coords.latitude, pos.coords.longitude);
+    const tx = db.transaction('observations', 'readwrite');
+    const store = tx.objectStore('observations');
+    const req = store.get(obsId);
+    req.onsuccess = () => {
+      const obs = req.result;
+      if (obs) {
+        obs.weather = weather;
+        store.put(obs);
+      }
+    };
+  } catch (e) {
+    console.log('Weather fetch skipped:', e.message);
+  }
+}
+
 saveBtn.addEventListener('click', async () => {
   const now = new Date();
   const noteText = noteInput.value.trim();
@@ -2573,6 +2695,8 @@ saveBtn.addEventListener('click', async () => {
       currentUnsortedId = null;
     }
     showToast('Observation saved!');
+    // Fetch weather in background (don't block save)
+    fetchAndAttachWeather(observation.id);
     currentPhotoBlob = null;
     currentPhotoDataURL = null;
     cameraInput.value = '';
@@ -2699,6 +2823,26 @@ function renderDetailView() {
   } else {
     connField.style.display = 'none';
   }
+  // Weather
+  const weatherField = document.getElementById('detailWeatherField');
+  const weatherDetails = document.getElementById('weatherDetails');
+  const weatherArrow = document.getElementById('weatherArrow');
+  if (obs.weather) {
+    const w = obs.weather;
+    weatherField.style.display = '';
+    weatherDetails.classList.remove('open');
+    weatherArrow.classList.remove('open');
+    weatherDetails.innerHTML = `
+      <div class="weather-condition">${w.conditionIcon || ''} ${esc(w.condition || '')}</div>
+      <div class="weather-item"><span class="w-label">Temp</span><span class="w-value">${w.temp}\u00B0F</span></div>
+      <div class="weather-item"><span class="w-label">Feels like</span><span class="w-value">${w.feelsLike}\u00B0F</span></div>
+      <div class="weather-item"><span class="w-label">Humidity</span><span class="w-value">${w.humidity}%</span></div>
+      <div class="weather-item"><span class="w-label">Wind</span><span class="w-value">${w.windDir} ${w.windSpeed} mph</span></div>
+      <div class="weather-item"><span class="w-label">Precip (1hr)</span><span class="w-value">${w.precip}" </span></div>
+    `;
+  } else {
+    weatherField.style.display = 'none';
+  }
 }
 
 function renderNotesTimeline(obs) {
@@ -2789,6 +2933,11 @@ document.getElementById('editObsBtn').addEventListener('click', () => {
   });
 });
 
+document.getElementById('weatherToggle').addEventListener('click', () => {
+  document.getElementById('weatherDetails').classList.toggle('open');
+  document.getElementById('weatherArrow').classList.toggle('open');
+});
+
 document.getElementById('backBtn').addEventListener('click', () => {
   currentDetailObs = null;
   if (navigationOrigin === 'profile' && currentProfilePlant) {
@@ -2846,6 +2995,12 @@ function obsToMarkdown(obs) {
   }
   if (obs.connection && obs.connection.subject) {
     md += `**Connection:** ${obs.connection.subject} \u2192 ${obs.connection.relationship} \u2192 ${obs.connection.target}\n\n`;
+  }
+  if (obs.weather) {
+    const w = obs.weather;
+    md += `**Conditions:** ${w.condition}, ${w.temp}\u00B0F (feels ${w.feelsLike}\u00B0F), ${w.humidity}% humidity, wind ${w.windDir} ${w.windSpeed} mph`;
+    if (w.precip > 0) md += `, ${w.precip}" precip`;
+    md += `\n\n`;
   }
   md += `**Photo:** ${obs.date}_${obs.time.replace(':', '')}\_${obs.plant.replace(/[^a-zA-Z0-9]/g, '')}.jpg\n`;
   return md;
