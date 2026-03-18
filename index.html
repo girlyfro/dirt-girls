@@ -1219,6 +1219,87 @@ textarea.note-input:focus {
 /* Adjust home/plants screens for bottom nav */
 #home-screen.active, #plants-screen.active { padding-bottom: 72px; }
 
+/* Native status & source badges */
+.native-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.native-dot.green { background: #4CAF50; }
+.native-dot.yellow { background: #D4A84B; }
+.native-dot.gray { background: #9E9E9E; }
+.native-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 8px;
+  line-height: 1.4;
+}
+.native-badge.green { background: #E8F5E9; color: #2E7D32; }
+.native-badge.yellow { background: #FFF8E1; color: #F57F17; }
+.native-badge.gray { background: #F5F5F5; color: #616161; }
+.source-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--sage-light);
+  color: var(--brown-light);
+  line-height: 1.4;
+}
+.card-badges {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 16px 12px;
+  align-items: center;
+}
+.profile-source-notes {
+  font-size: 0.75rem;
+  color: var(--brown-light);
+  font-style: italic;
+  padding: 0 16px 8px;
+}
+.modal-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: var(--brown);
+  background: white;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%236D4C41' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  margin-bottom: 8px;
+}
+.modal-select:focus { outline: 2px solid var(--terracotta); border-color: var(--terracotta); }
+.modal-card { max-height: 85vh; max-height: 85dvh; overflow-y: auto; }
+.profile-edit-btn {
+  border: none;
+  background: none;
+  color: var(--terracotta);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Toast */
 .toast {
   position: fixed;
@@ -1405,6 +1486,7 @@ textarea.note-input:focus {
   <div class="profile-header">
     <button class="profile-back-btn" id="profileBackBtn">&larr;</button>
     <h2 id="profileName"></h2>
+    <button class="profile-edit-btn" id="profileEditBtn">Edit</button>
     <button class="profile-fav-btn" id="profileFavBtn"></button>
   </div>
   <div class="profile-hero" id="profileHero"></div>
@@ -1414,6 +1496,8 @@ textarea.note-input:focus {
     <div class="profile-sci" id="profileSci"></div>
     <div class="profile-meta" id="profileMeta"></div>
   </div>
+  <div class="profile-tags" id="profileTags"></div>
+  <div class="profile-source-notes" id="profileSourceNotes"></div>
   <div class="profile-stats" id="profileStats"></div>
   <div class="profile-timeline-header">Observations</div>
   <div class="profile-timeline" id="profileTimeline"></div>
@@ -1457,6 +1541,16 @@ textarea.note-input:focus {
       <button class="location-chip" data-loc="back">Back</button>
       <button class="location-chip" data-loc="side">Side</button>
     </div>
+    <label class="modal-input-label" for="newPlantNativeStatus">Native status</label>
+    <select id="newPlantNativeStatus" class="modal-select">
+      <option value="">Select...</option>
+    </select>
+    <label class="modal-input-label" for="newPlantSource">Source / provenance</label>
+    <select id="newPlantSource" class="modal-select">
+      <option value="">Select...</option>
+    </select>
+    <label class="modal-input-label" for="newPlantSourceNotes">Source notes (optional)</label>
+    <input type="text" id="newPlantSourceNotes" class="modal-input" placeholder="e.g. swap meet, gift from neighbor" autocomplete="off">
     <div class="modal-actions">
       <button class="btn-cancel" id="addPlantCancelBtn">Cancel</button>
       <button class="btn-save" id="addPlantSaveBtn">Add Plant</button>
@@ -1492,18 +1586,58 @@ textarea.note-input:focus {
 <script>
 // ── IndexedDB Setup ──
 const DB_NAME = 'DirtGirlsDB';
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 let db;
 
+const NATIVE_STATUS_OPTIONS = [
+  { value: 'native-local',      label: 'Native \u2014 Harris County / Gulf Coast', color: 'green' },
+  { value: 'native-texas',      label: 'Native \u2014 Texas (outside my region)',  color: 'yellow' },
+  { value: 'native-southeast',  label: 'Native \u2014 Southeast US',               color: 'yellow' },
+  { value: 'cultivar-native',   label: 'Cultivar of native species',               color: 'yellow' },
+  { value: 'nonnative-ok',      label: 'Non-native \u2014 well behaved',           color: 'gray' },
+  { value: 'nonnative-invasive', label: 'Non-native \u2014 invasive',              color: 'gray' },
+];
+
+const SOURCE_OPTIONS = [
+  { value: 'seed-self',       label: 'Started from seed \u2014 self collected' },
+  { value: 'seed-purchased',  label: 'Started from seed \u2014 purchased' },
+  { value: 'volunteer',       label: 'Volunteer / self-seeded in yard' },
+  { value: 'division-mine',   label: 'Division or cutting \u2014 my garden' },
+  { value: 'division-other',  label: "Division or cutting \u2014 someone else's garden" },
+  { value: 'nursery-native',  label: 'Nursery transplant \u2014 native nursery' },
+  { value: 'nursery-bigbox',  label: 'Nursery transplant \u2014 big box store' },
+];
+
+function nativeStatusColor(val) {
+  const opt = NATIVE_STATUS_OPTIONS.find(o => o.value === val);
+  return opt ? opt.color : '';
+}
+function nativeStatusLabel(val) {
+  const opt = NATIVE_STATUS_OPTIONS.find(o => o.value === val);
+  return opt ? opt.label : '';
+}
+function sourceLabel(val) {
+  const opt = SOURCE_OPTIONS.find(o => o.value === val);
+  return opt ? opt.label : '';
+}
+function sourceShortLabel(val) {
+  if (!val) return '';
+  if (val.startsWith('seed')) return 'Seed';
+  if (val === 'volunteer') return 'Volunteer';
+  if (val.startsWith('division')) return 'Cutting';
+  if (val.startsWith('nursery')) return 'Nursery';
+  return '';
+}
+
 const DEFAULT_PLANTS = [
-  { id: 'mother-tree',  name: 'Mother Tree',  sci: 'Cercis canadensis', location: 'front', group: 'tree', nickname: '', favorite: false },
-  { id: 'sister-1',     name: 'Sister 1',     sci: 'Cercis canadensis (volunteer)', location: 'front', group: 'tree', nickname: '', favorite: false },
-  { id: 'sister-2',     name: 'Sister 2',     sci: 'Cercis canadensis (volunteer)', location: 'front', group: 'tree', nickname: '', favorite: false },
-  { id: 'turks-cap',    name: "Turk's Cap",   sci: 'Malvaviscus arboreus', location: 'back', group: 'companion', nickname: '', favorite: false },
-  { id: 'sea-oats',     name: 'Sea Oats',     sci: 'Chasmanthium latifolium', location: 'back', group: 'companion', nickname: '', favorite: false },
-  { id: 'pentas',       name: 'Pentas',       sci: 'Pentas lanceolata', location: 'back', group: 'companion', nickname: '', favorite: false },
-  { id: 'easter-lily',  name: 'Easter Lily',  sci: 'Lilium longiflorum', location: 'back', group: 'companion', nickname: '', favorite: false },
-  { id: 'spider-lily',  name: 'Spider Lily',  sci: 'Hymenocallis', location: 'back', group: 'companion', nickname: '', favorite: false },
+  { id: 'mother-tree',  name: 'Mother Tree',  sci: 'Cercis canadensis', location: 'front', group: 'tree', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
+  { id: 'sister-1',     name: 'Sister 1',     sci: 'Cercis canadensis (volunteer)', location: 'front', group: 'tree', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
+  { id: 'sister-2',     name: 'Sister 2',     sci: 'Cercis canadensis (volunteer)', location: 'front', group: 'tree', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
+  { id: 'turks-cap',    name: "Turk's Cap",   sci: 'Malvaviscus arboreus', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
+  { id: 'sea-oats',     name: 'Sea Oats',     sci: 'Chasmanthium latifolium', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
+  { id: 'pentas',       name: 'Pentas',       sci: 'Pentas lanceolata', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
+  { id: 'easter-lily',  name: 'Easter Lily',  sci: 'Lilium longiflorum', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
+  { id: 'spider-lily',  name: 'Spider Lily',  sci: 'Hymenocallis', location: 'back', group: 'companion', nickname: '', favorite: false, nativeStatus: '', source: '', sourceNotes: '' },
 ];
 
 const DEFAULT_CATEGORIES = [
@@ -1571,6 +1705,23 @@ function openDB() {
             let changed = false;
             if (p.nickname === undefined) { p.nickname = ''; changed = true; }
             if (p.favorite === undefined) { p.favorite = false; changed = true; }
+            if (changed) cursor.update(p);
+            cursor.continue();
+          }
+        };
+      }
+      // v5 migration: add nativeStatus/source/sourceNotes to existing plants
+      if (e.oldVersion < 5 && e.oldVersion >= 1) {
+        const plantStore = tx.objectStore('plants');
+        const cursorReq5 = plantStore.openCursor();
+        cursorReq5.onsuccess = (ev) => {
+          const cursor = ev.target.result;
+          if (cursor) {
+            const p = cursor.value;
+            let changed = false;
+            if (p.nativeStatus === undefined) { p.nativeStatus = ''; changed = true; }
+            if (p.source === undefined) { p.source = ''; changed = true; }
+            if (p.sourceNotes === undefined) { p.sourceNotes = ''; changed = true; }
             if (changed) cursor.update(p);
             cursor.continue();
           }
@@ -1839,17 +1990,67 @@ function buildPlantChipHTML(p) {
 }
 
 // ── Add Plant Modal ──
+let editingPlant = null; // set when editing an existing plant
+
+function populateModalSelects() {
+  const nsSel = document.getElementById('newPlantNativeStatus');
+  if (nsSel.options.length <= 1) {
+    NATIVE_STATUS_OPTIONS.forEach(o => {
+      const opt = document.createElement('option');
+      opt.value = o.value;
+      opt.textContent = o.label;
+      nsSel.appendChild(opt);
+    });
+  }
+  const srcSel = document.getElementById('newPlantSource');
+  if (srcSel.options.length <= 1) {
+    SOURCE_OPTIONS.forEach(o => {
+      const opt = document.createElement('option');
+      opt.value = o.value;
+      opt.textContent = o.label;
+      srcSel.appendChild(opt);
+    });
+  }
+}
+
 function openAddPlantModal() {
+  editingPlant = null;
   document.getElementById('newPlantName').value = '';
   document.getElementById('newPlantNickname').value = '';
   document.getElementById('newPlantSci').value = '';
+  document.getElementById('newPlantNativeStatus').value = '';
+  document.getElementById('newPlantSource').value = '';
+  document.getElementById('newPlantSourceNotes').value = '';
   selectedLocation = '';
   document.querySelectorAll('.location-chip').forEach(c => c.classList.remove('selected'));
+  document.querySelector('#addPlantModal h2').textContent = 'Add New Plant';
+  document.getElementById('addPlantSaveBtn').textContent = 'Add Plant';
+  populateModalSelects();
+  addPlantModal.classList.add('open');
+  setTimeout(() => document.getElementById('newPlantName').focus(), 100);
+}
+
+function openEditPlantModal(plant) {
+  editingPlant = plant;
+  document.getElementById('newPlantName').value = plant.name || '';
+  document.getElementById('newPlantNickname').value = plant.nickname || '';
+  document.getElementById('newPlantSci').value = plant.sci || '';
+  document.getElementById('newPlantNativeStatus').value = plant.nativeStatus || '';
+  document.getElementById('newPlantSource').value = plant.source || '';
+  document.getElementById('newPlantSourceNotes').value = plant.sourceNotes || '';
+  selectedLocation = plant.location || '';
+  document.querySelectorAll('.location-chip').forEach(c => {
+    c.classList.toggle('selected', c.dataset.loc === selectedLocation);
+  });
+  document.querySelector('#addPlantModal h2').textContent = 'Edit Plant';
+  document.getElementById('addPlantSaveBtn').textContent = 'Save';
+  populateModalSelects();
   addPlantModal.classList.add('open');
   setTimeout(() => document.getElementById('newPlantName').focus(), 100);
 }
 
 function closeAddPlantModal() {
+  editingPlant = null;
   addPlantModal.classList.remove('open');
 }
 
@@ -1875,33 +2076,66 @@ document.getElementById('addPlantSaveBtn').addEventListener('click', async () =>
   }
   const nickname = document.getElementById('newPlantNickname').value.trim();
   const sci = document.getElementById('newPlantSci').value.trim();
-  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now();
-  const plant = {
-    id,
-    name,
-    nickname: nickname || '',
-    sci: sci || '',
-    location: selectedLocation || '',
-    group: 'custom',
-    favorite: false
-  };
-  try {
-    await addPlant(plant);
-    closeAddPlantModal();
-    selectedPlant = plantLabel(plant);
-    selectedPlantObj = plant;
-    await renderPlantChips();
-    const displayName = plantLabel(plant);
-    showToast(`${displayName} added!`);
-    if (pendingPlantGridRefresh) {
-      pendingPlantGridRefresh = false;
+  const nativeStatus = document.getElementById('newPlantNativeStatus').value;
+  const source = document.getElementById('newPlantSource').value;
+  const sourceNotes = document.getElementById('newPlantSourceNotes').value.trim();
+
+  if (editingPlant) {
+    // Edit mode
+    editingPlant.name = name;
+    editingPlant.nickname = nickname || '';
+    editingPlant.sci = sci || '';
+    editingPlant.location = selectedLocation || '';
+    editingPlant.nativeStatus = nativeStatus || '';
+    editingPlant.source = source || '';
+    editingPlant.sourceNotes = sourceNotes || '';
+    try {
+      await updatePlant(editingPlant);
+      closeAddPlantModal();
+      showToast('Plant updated!');
+      if (currentProfilePlant && currentProfilePlant.id === editingPlant.id) {
+        currentProfilePlant = editingPlant;
+        openPlantProfile(editingPlant);
+      }
       renderPlantsGrid();
+      await renderPlantChips();
+    } catch (err) {
+      showToast('Error updating plant');
+      console.error(err);
     }
-    const sel = plantChips.querySelector('.plant-chip.selected');
-    if (sel) sel.scrollIntoView({ inline: 'center', behavior: 'smooth' });
-  } catch (err) {
-    showToast('Error adding plant');
-    console.error(err);
+  } else {
+    // Add mode
+    const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now();
+    const plant = {
+      id,
+      name,
+      nickname: nickname || '',
+      sci: sci || '',
+      location: selectedLocation || '',
+      group: 'custom',
+      favorite: false,
+      nativeStatus: nativeStatus || '',
+      source: source || '',
+      sourceNotes: sourceNotes || ''
+    };
+    try {
+      await addPlant(plant);
+      closeAddPlantModal();
+      selectedPlant = plantLabel(plant);
+      selectedPlantObj = plant;
+      await renderPlantChips();
+      const displayName = plantLabel(plant);
+      showToast(`${displayName} added!`);
+      if (pendingPlantGridRefresh) {
+        pendingPlantGridRefresh = false;
+        renderPlantsGrid();
+      }
+      const sel = plantChips.querySelector('.plant-chip.selected');
+      if (sel) sel.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+    } catch (err) {
+      showToast('Error adding plant');
+      console.error(err);
+    }
   }
 });
 
@@ -2543,11 +2777,17 @@ async function renderPlantsGrid() {
       ? `<img src="${photo}" alt="${label}">`
       : '<div class="placeholder-icon">🌿</div>';
     const starHTML = p.favorite ? '<div class="card-fav-star">★</div>' : '';
+    const nsColor = nativeStatusColor(p.nativeStatus);
+    const nsDot = nsColor ? `<span class="native-dot ${nsColor}"></span>` : '';
+    const srcShort = sourceShortLabel(p.source);
+    const srcBadge = srcShort ? `<span class="source-badge">${esc(srcShort)}</span>` : '';
+    const badgesHTML = (nsDot || srcBadge) ? `<div class="card-badges">${nsDot}${srcBadge}</div>` : '';
     return `<div class="plant-card" data-plant-id="${esc(p.id)}">
       <div class="plant-card-photo">${photoHTML}${starHTML}</div>
       <div class="plant-card-info">
         <div class="card-name">${label}</div>
         ${sci ? `<div class="card-sci">${sci}</div>` : ''}
+        ${badgesHTML}
       </div>
     </div>`;
   }).join('');
@@ -2596,6 +2836,22 @@ async function openPlantProfile(plant) {
   if (plant.location) metaParts.push(plant.location.charAt(0).toUpperCase() + plant.location.slice(1) + ' yard');
   if (plant.group) metaParts.push(plant.group);
   document.getElementById('profileMeta').textContent = metaParts.join(' · ');
+
+  // Tags (native status + source)
+  const tagsEl = document.getElementById('profileTags');
+  let tagsHTML = '';
+  if (plant.nativeStatus) {
+    const nsColor = nativeStatusColor(plant.nativeStatus);
+    const nsLabel = nativeStatusLabel(plant.nativeStatus);
+    tagsHTML += `<span class="native-badge ${nsColor}">${esc(nsLabel)}</span>`;
+  }
+  if (plant.source) {
+    tagsHTML += `<span class="source-badge">${esc(sourceLabel(plant.source))}</span>`;
+  }
+  tagsEl.innerHTML = tagsHTML;
+  const srcNotesEl = document.getElementById('profileSourceNotes');
+  srcNotesEl.textContent = plant.sourceNotes || '';
+  srcNotesEl.style.display = plant.sourceNotes ? '' : 'none';
 
   // Stats
   const statsEl = document.getElementById('profileStats');
@@ -2676,6 +2932,12 @@ document.getElementById('profileFavBtn').addEventListener('click', async () => {
   currentProfilePlant.favorite = !currentProfilePlant.favorite;
   await updatePlant(currentProfilePlant);
   document.getElementById('profileFavBtn').textContent = currentProfilePlant.favorite ? '★' : '☆';
+});
+
+// Profile edit button
+document.getElementById('profileEditBtn').addEventListener('click', () => {
+  if (!currentProfilePlant) return;
+  openEditPlantModal(currentProfilePlant);
 });
 
 // Profile back button
