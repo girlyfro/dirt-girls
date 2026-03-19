@@ -1289,7 +1289,7 @@ textarea.note-input:focus {
 }
 .modal-select:focus { outline: 2px solid var(--terracotta); border-color: var(--terracotta); }
 .modal-card { max-height: 85vh; max-height: 85dvh; overflow-y: auto; }
-/* Plant ID / iNaturalist */
+/* Plant ID / Pl@ntNet */
 .modal-photo-area {
   display: flex;
   align-items: center;
@@ -1582,6 +1582,9 @@ textarea.note-input:focus {
 <!-- ANNOTATION SCREEN -->
 <div id="annotate-screen" class="screen">
   <div class="photo-preview"><img id="previewImg" src="" alt="Captured photo"></div>
+
+  <button class="btn-identify visible" id="obsIdentifyBtn">🔍 Identify from Photo</button>
+  <div class="id-suggestions" id="obsIdSuggestions"></div>
 
   <div class="form-group">
     <label>Which plant?</label>
@@ -2301,7 +2304,7 @@ function openAddPlantModal() {
 function openEditPlantModal(plant) {
   editingPlant = plant;
   resetModalPhotoState();
-  identifiedByINat = (plant.identifiedBy === 'iNaturalist');
+  identifiedByINat = !!plant.identifiedBy;
   document.getElementById('newPlantName').value = plant.name || '';
   document.getElementById('newPlantNickname').value = plant.nickname || '';
   document.getElementById('newPlantSci').value = plant.sci || '';
@@ -2324,7 +2327,10 @@ function closeAddPlantModal() {
   addPlantModal.classList.remove('open');
 }
 
-// ── Plant Photo ID ──
+// ── Plant Photo ID (Pl@ntNet API) ──
+// ▼▼▼ Get your free key at https://my.plantnet.org ▼▼▼
+const PLANTNET_API_KEY = 'YOUR_API_KEY_HERE';
+
 function resizeImageBlob(file, maxSize) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -2346,22 +2352,118 @@ function resizeImageBlob(file, maxSize) {
   });
 }
 
+function dataURLtoBlob(dataURL) {
+  const parts = dataURL.split(',');
+  const mime = parts[0].match(/:(.*?);/)[1];
+  const raw = atob(parts[1]);
+  const arr = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+
 async function identifyPlantFromImage(imageBlob) {
+  if (!PLANTNET_API_KEY || PLANTNET_API_KEY === 'YOUR_API_KEY_HERE') {
+    throw new Error('Pl@ntNet API key not set. Get a free key at my.plantnet.org');
+  }
   const formData = new FormData();
-  formData.append('image', imageBlob, 'photo.jpg');
-  const resp = await fetch('https://api.inaturalist.org/v1/computervision/score_image', {
+  formData.append('images', imageBlob, 'photo.jpg');
+  formData.append('organs', 'auto');
+  const resp = await fetch(`https://my-api.plantnet.org/v2/identify/all?api-key=${PLANTNET_API_KEY}&include-related-images=false&nb-results=3&lang=en`, {
     method: 'POST',
     body: formData
   });
-  if (!resp.ok) throw new Error(`API returned ${resp.status}`);
+  if (!resp.ok) {
+    const errText = await resp.text().catch(() => '');
+    throw new Error(`Pl@ntNet API returned ${resp.status}: ${errText}`);
+  }
   const data = await resp.json();
   const results = data.results || [];
   return results.slice(0, 3).map(r => ({
-    commonName: (r.taxon && r.taxon.preferred_common_name) || '',
-    latinName: (r.taxon && r.taxon.name) || '',
-    score: Math.round((r.combined_score || r.vision_score || 0) * 100)
+    commonName: (r.species && r.species.commonNames && r.species.commonNames[0]) || '',
+    latinName: (r.species && r.species.scientificNameWithoutAuthor) || '',
+    score: Math.round((r.score || 0) * 100)
   }));
 }
+
+// Helper: render suggestion cards and bind taps
+function renderIdSuggestions(sugBox, suggestions, onSelect) {
+  if (suggestions.length === 0) {
+    sugBox.innerHTML = '<div class="id-error">No species matches found. Try a clearer photo or type the name manually.</div>';
+  } else {
+    let html = '';
+    suggestions.forEach((s, i) => {
+      html += `<div class="id-suggestion-card" data-idx="${i}">
+        <div>
+          <div class="id-name">${esc(s.commonName || s.latinName)}</div>
+          <div class="id-sci">${esc(s.latinName)}</div>
+        </div>
+        <div class="id-score">${s.score}%</div>
+      </div>`;
+    });
+    html += '<div class="id-dismiss">None of these</div>';
+    sugBox.innerHTML = html;
+
+    sugBox.querySelectorAll('.id-suggestion-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const idx = parseInt(card.dataset.idx);
+        onSelect(suggestions[idx]);
+        sugBox.classList.remove('visible');
+      });
+    });
+    sugBox.querySelector('.id-dismiss').addEventListener('click', () => {
+      sugBox.classList.remove('visible');
+    });
+  }
+  sugBox.classList.add('visible');
+}
+
+// ── Observation screen identify button ──
+document.getElementById('obsIdentifyBtn').addEventListener('click', async () => {
+  if (!currentPhotoDataURL) return;
+  const btn = document.getElementById('obsIdentifyBtn');
+  const sugBox = document.getElementById('obsIdSuggestions');
+  btn.disabled = true;
+  btn.textContent = '🔍 Identifying...';
+  sugBox.classList.remove('visible');
+  sugBox.innerHTML = '';
+
+  try {
+    const blob = dataURLtoBlob(currentPhotoDataURL);
+    const resized = await resizeImageBlob(blob, 1024);
+    const suggestions = await identifyPlantFromImage(resized);
+
+    renderIdSuggestions(sugBox, suggestions, (s) => {
+      // Find or create matching plant, then select the chip
+      const matchName = s.commonName || s.latinName;
+      const existing = allPlantsCache.find(p =>
+        p.name.toLowerCase() === matchName.toLowerCase() ||
+        (p.sci && p.sci.toLowerCase() === s.latinName.toLowerCase())
+      );
+      if (existing) {
+        selectedPlant = plantLabel(existing);
+        selectedPlantObj = existing;
+        plantChips.querySelectorAll('.plant-chip').forEach(c => {
+          c.classList.toggle('selected', c.textContent.trim() === selectedPlant);
+        });
+        showToast(`Selected: ${selectedPlant}`);
+      } else {
+        // No existing plant — just set the name so it saves with the observation
+        selectedPlant = matchName;
+        selectedPlantObj = null;
+        // Deselect any chip
+        plantChips.querySelectorAll('.plant-chip').forEach(c => c.classList.remove('selected'));
+        showToast(`Identified: ${matchName} (${s.latinName})`);
+      }
+    });
+  } catch (err) {
+    console.error('Plant ID error:', err);
+    sugBox.innerHTML = `<div class="id-error">Could not identify plant. ${err.message || 'Check your connection and try again.'}</div>`;
+    sugBox.classList.add('visible');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🔍 Identify from Photo';
+});
 
 // Modal photo input
 document.getElementById('modalPhotoBtn').addEventListener('click', () => {
@@ -2371,21 +2473,18 @@ document.getElementById('modalPhotoBtn').addEventListener('click', () => {
 document.getElementById('modalPhotoInput').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  // Show preview
   const reader = new FileReader();
   reader.onload = (ev) => {
     document.getElementById('modalPhotoPreview').innerHTML = `<img src="${ev.target.result}" alt="Plant photo">`;
   };
   reader.readAsDataURL(file);
-  // Resize for API
   modalPhotoBlob = await resizeImageBlob(file, 1024);
-  // Show identify button
   document.getElementById('identifyBtn').classList.add('visible');
   document.getElementById('idSuggestions').classList.remove('visible');
   document.getElementById('idSuggestions').innerHTML = '';
 });
 
-// Identify button
+// Identify button (Add Plant modal)
 document.getElementById('identifyBtn').addEventListener('click', async () => {
   if (!modalPhotoBlob) return;
   const btn = document.getElementById('identifyBtn');
@@ -2398,44 +2497,12 @@ document.getElementById('identifyBtn').addEventListener('click', async () => {
 
   try {
     const suggestions = await identifyPlantFromImage(modalPhotoBlob);
-    if (suggestions.length === 0) {
-      sugBox.innerHTML = '<div class="id-error">No species matches found. Try a clearer photo or type the name manually.</div>';
-    } else {
-      let html = '';
-      suggestions.forEach((s, i) => {
-        html += `<div class="id-suggestion-card" data-idx="${i}">
-          <div>
-            <div class="id-name">${esc(s.commonName || s.latinName)}</div>
-            <div class="id-sci">${esc(s.latinName)}</div>
-          </div>
-          <div class="id-score">${s.score}%</div>
-        </div>`;
-      });
-      html += '<div class="id-dismiss" id="idDismiss">None of these</div>';
-      sugBox.innerHTML = html;
-
-      // Bind suggestion taps
-      sugBox.querySelectorAll('.id-suggestion-card').forEach(card => {
-        card.addEventListener('click', () => {
-          const idx = parseInt(card.dataset.idx);
-          const s = suggestions[idx];
-          if (s.commonName) document.getElementById('newPlantName').value = s.commonName;
-          document.getElementById('newPlantSci').value = s.latinName;
-          identifiedByINat = true;
-          sugBox.classList.remove('visible');
-          showToast('Name filled from iNaturalist');
-        });
-      });
-
-      // Dismiss
-      const dismissBtn = document.getElementById('idDismiss');
-      if (dismissBtn) {
-        dismissBtn.addEventListener('click', () => {
-          sugBox.classList.remove('visible');
-        });
-      }
-    }
-    sugBox.classList.add('visible');
+    renderIdSuggestions(sugBox, suggestions, (s) => {
+      if (s.commonName) document.getElementById('newPlantName').value = s.commonName;
+      document.getElementById('newPlantSci').value = s.latinName;
+      identifiedByINat = true;
+      showToast('Name filled from Pl@ntNet');
+    });
   } catch (err) {
     console.error('Plant ID error:', err);
     sugBox.innerHTML = `<div class="id-error">Could not identify plant. ${err.message || 'Check your connection and try again.'}</div>`;
@@ -2482,7 +2549,7 @@ document.getElementById('addPlantSaveBtn').addEventListener('click', async () =>
     editingPlant.nativeStatus = nativeStatus || '';
     editingPlant.source = source || '';
     editingPlant.sourceNotes = sourceNotes || '';
-    if (identifiedByINat) editingPlant.identifiedBy = 'iNaturalist';
+    if (identifiedByINat) editingPlant.identifiedBy = 'Pl@ntNet';
     try {
       await updatePlant(editingPlant);
       closeAddPlantModal();
@@ -2511,7 +2578,7 @@ document.getElementById('addPlantSaveBtn').addEventListener('click', async () =>
       nativeStatus: nativeStatus || '',
       source: source || '',
       sourceNotes: sourceNotes || '',
-      identifiedBy: identifiedByINat ? 'iNaturalist' : ''
+      identifiedBy: identifiedByINat ? 'Pl@ntNet' : ''
     };
     try {
       await addPlant(plant);
@@ -3382,8 +3449,8 @@ async function openPlantProfile(plant) {
   if (plant.source) {
     tagsHTML += `<span class="source-badge">${esc(sourceLabel(plant.source))}</span>`;
   }
-  if (plant.identifiedBy === 'iNaturalist') {
-    tagsHTML += '<span class="inat-badge">🔬 Identified by iNaturalist</span>';
+  if (plant.identifiedBy) {
+    tagsHTML += `<span class="inat-badge">🔬 Identified by ${esc(plant.identifiedBy)}</span>`;
   }
   tagsEl.innerHTML = tagsHTML;
   const srcNotesEl = document.getElementById('profileSourceNotes');
