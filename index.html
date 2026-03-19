@@ -1694,6 +1694,7 @@ textarea.note-input:focus {
   </div>
   <div class="detail-actions">
     <button class="btn-back" id="backBtn">Back</button>
+    <button class="btn-edit-obs" id="editObsFieldsBtn">Edit</button>
     <button class="btn-edit-obs" id="editObsBtn">+ Note</button>
     <button class="btn-share" id="shareBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
@@ -2043,6 +2044,7 @@ let selectedCategories = new Set();
 let selectedObserver = 'Courtney';
 let selectedLocation = '';
 let viewingObservationId = null;
+let editingObservation = null; // set when editing an existing observation
 let allPlantsCache = [];
 let navigationOrigin = 'home'; // track where detail screen was opened from
 let currentProfilePlant = null;
@@ -2123,6 +2125,59 @@ function openUnsortedItem(item) {
   resetForm();
   showScreen(annotateScreen);
   renderPlantChips();
+}
+
+async function openEditObservation(obs) {
+  editingObservation = obs;
+  currentPhotoDataURL = obs.photo;
+  currentUnsortedId = null;
+  previewImg.src = obs.photo;
+  resetForm();
+
+  // Pre-fill plant selection
+  await renderPlantChips();
+  const plantName = obs.plant || '';
+  if (plantName && plantName !== 'Unknown') {
+    selectedPlant = plantName;
+    selectedPlantObj = allPlantsCache.find(p => plantLabel(p) === plantName) || null;
+    // Highlight the matching chip
+    plantChips.querySelectorAll('.plant-chip').forEach(chip => {
+      if (chip.textContent.trim() === plantName) {
+        chip.classList.add('selected');
+      }
+    });
+  }
+
+  // Pre-fill categories
+  const cats = Array.isArray(obs.category) ? obs.category : [obs.category || 'general'];
+  selectedCategories = new Set(cats);
+  renderCategoryChips();
+
+  // Pre-fill note (use first note text if exists)
+  const firstNote = (obs.notes && obs.notes.length > 0) ? obs.notes[0].text : '';
+  noteInput.value = firstNote;
+
+  // Pre-fill observer
+  selectedObserver = obs.observer || 'Courtney';
+  document.querySelectorAll('.observer-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.observer === selectedObserver);
+  });
+
+  // Pre-fill connection
+  if (obs.connection && obs.connection.subject) {
+    connectionToggle.classList.add('open');
+    connectionFields.classList.add('open');
+    connSubject.value = obs.connection.subject || '';
+    connTarget.value = obs.connection.target || '';
+    selectedRelationship = obs.connection.relationship || '';
+    document.querySelectorAll('.connection-rel-chip').forEach(c => {
+      c.classList.toggle('selected', c.dataset.rel === selectedRelationship);
+    });
+  }
+
+  // Update save button text
+  saveBtn.textContent = 'Update';
+  showScreen(annotateScreen);
 }
 
 cameraInput.addEventListener('change', (e) => handlePhoto(e.target.files[0]));
@@ -2598,6 +2653,16 @@ function resetForm() {
 }
 
 cancelBtn.addEventListener('click', () => {
+  // If editing an observation, go back to detail view instead of home
+  if (editingObservation) {
+    editingObservation = null;
+    saveBtn.textContent = 'Save';
+    currentPhotoBlob = null;
+    currentPhotoDataURL = null;
+    renderDetailView();
+    showScreen(detailScreen);
+    return;
+  }
   currentPhotoBlob = null;
   currentPhotoDataURL = null;
   currentUnsortedId = null;
@@ -2671,43 +2736,73 @@ saveBtn.addEventListener('click', async () => {
   const now = new Date();
   const noteText = noteInput.value.trim();
   const cats = selectedCategories.size > 0 ? [...selectedCategories] : ['general'];
-  // Find the plant object to store latin name with observation
   const plantObj = selectedPlantObj || allPlantsCache.find(p => plantLabel(p) === selectedPlant);
-  const observation = {
-    id: crypto.randomUUID(),
-    date: now.toISOString().slice(0, 10),
-    time: now.toTimeString().slice(0, 5),
-    observer: selectedObserver,
-    plant: selectedPlant || 'Unknown',
-    plantSci: plantObj ? (plantObj.sci || '') : '',
-    category: cats,
-    notes: noteText ? [{ text: noteText, timestamp: now.toISOString() }] : [],
-    connection: getConnection(),
-    photo: currentPhotoDataURL,
-    photoTimestamp: now.toISOString()
-  };
 
-  try {
-    await addObservation(observation);
-    // Remove from unsorted queue if it came from there
-    if (currentUnsortedId) {
-      await deleteUnsorted(currentUnsortedId).catch(() => {});
-      currentUnsortedId = null;
+  if (editingObservation) {
+    // ── Edit mode: update existing observation ──
+    editingObservation.plant = selectedPlant || 'Unknown';
+    editingObservation.plantSci = plantObj ? (plantObj.sci || '') : '';
+    editingObservation.category = cats;
+    editingObservation.observer = selectedObserver;
+    editingObservation.connection = getConnection();
+    // Update first note text, or add one if note was empty before
+    if (noteText) {
+      if (editingObservation.notes && editingObservation.notes.length > 0) {
+        editingObservation.notes[0].text = noteText;
+      } else {
+        editingObservation.notes = [{ text: noteText, timestamp: now.toISOString() }];
+      }
     }
-    showToast('Observation saved!');
-    // Fetch weather in background (don't block save)
-    fetchAndAttachWeather(observation.id);
-    currentPhotoBlob = null;
-    currentPhotoDataURL = null;
-    cameraInput.value = '';
-    galleryInput.value = '';
-    showScreen(homeScreen);
-    renderRecent();
-    renderUnsorted();
-    updateExportBar();
-  } catch (err) {
-    showToast('Error saving — try again');
-    console.error(err);
+    try {
+      await updateObservation(editingObservation);
+      showToast('Observation updated!');
+      currentDetailObs = editingObservation;
+      editingObservation = null;
+      saveBtn.textContent = 'Save';
+      currentPhotoBlob = null;
+      currentPhotoDataURL = null;
+      renderDetailView();
+      showScreen(detailScreen);
+    } catch (err) {
+      showToast('Error updating — try again');
+      console.error(err);
+    }
+  } else {
+    // ── New observation mode ──
+    const observation = {
+      id: crypto.randomUUID(),
+      date: now.toISOString().slice(0, 10),
+      time: now.toTimeString().slice(0, 5),
+      observer: selectedObserver,
+      plant: selectedPlant || 'Unknown',
+      plantSci: plantObj ? (plantObj.sci || '') : '',
+      category: cats,
+      notes: noteText ? [{ text: noteText, timestamp: now.toISOString() }] : [],
+      connection: getConnection(),
+      photo: currentPhotoDataURL,
+      photoTimestamp: now.toISOString()
+    };
+
+    try {
+      await addObservation(observation);
+      if (currentUnsortedId) {
+        await deleteUnsorted(currentUnsortedId).catch(() => {});
+        currentUnsortedId = null;
+      }
+      showToast('Observation saved!');
+      fetchAndAttachWeather(observation.id);
+      currentPhotoBlob = null;
+      currentPhotoDataURL = null;
+      cameraInput.value = '';
+      galleryInput.value = '';
+      showScreen(homeScreen);
+      renderRecent();
+      renderUnsorted();
+      updateExportBar();
+    } catch (err) {
+      showToast('Error saving — try again');
+      console.error(err);
+    }
   }
 });
 
@@ -2906,6 +3001,12 @@ function startEditNote(idx) {
     showToast('Note updated');
   });
 }
+
+// Edit observation fields button
+document.getElementById('editObsFieldsBtn').addEventListener('click', () => {
+  if (!currentDetailObs) return;
+  openEditObservation(currentDetailObs);
+});
 
 // Add Note button in detail actions
 document.getElementById('editObsBtn').addEventListener('click', () => {
